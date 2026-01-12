@@ -13,10 +13,36 @@ import type {
 } from '../types'
 import { I18nError } from '../errors'
 
+/**
+ * Creates a new internationalization (i18n) instance.
+ *
+ * @param options - Configuration options for the i18n instance
+ * @returns An i18n instance with translation and locale management methods
+ *
+ * @example
+ * ```typescript
+ * const i18n = createI18n({
+ *   defaultLocale: 'en',
+ *   translations: {
+ *     en: { hello: 'Hello', greeting: 'Hello, {{name}}!' },
+ *     es: { hello: 'Hola', greeting: '¡Hola, {{name}}!' }
+ *   }
+ * })
+ *
+ * i18n.t('hello') // "Hello"
+ * i18n.t('greeting', { name: 'World' }) // "Hello, World!"
+ * ```
+ *
+ * @throws {TypeError} If options is null, undefined, or not an object
+ * @throws {TypeError} If defaultLocale is missing, empty, or not a string
+ * @throws {TypeError} If translations is provided but not an object
+ * @throws {TypeError} If loadPath is provided but not a function
+ */
 export function createI18n(options?: I18nOptions): I18n {
   // Validate options
-  if (options === undefined) {
-    throw new I18nError('options is required')
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (options === undefined || options === null) {
+    throw new TypeError('options is required')
   }
 
   if (typeof options !== 'object' || Array.isArray(options)) {
@@ -349,7 +375,7 @@ export function createI18n(options?: I18nOptions): I18n {
     }) as TranslateFunction
 
     fn.namespace = (newPrefix: string | null | undefined) => {
-      if (newPrefix !== undefined && typeof newPrefix !== 'string') {
+      if (newPrefix !== undefined && newPrefix !== null && typeof newPrefix !== 'string') {
         throw new TypeError('prefix must be a string')
       }
 
