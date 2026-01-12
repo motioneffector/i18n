@@ -6,6 +6,10 @@ Lightweight, type-safe internationalization library with zero dependencies for m
 [![license](https://img.shields.io/npm/l/@motioneffector/i18n.svg)](https://github.com/motioneffector/i18n/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
+## Demo
+
+[Try the interactive demo](https://motioneffector.github.io/i18n/) to see the library in action.
+
 ## Installation
 
 ```bash
@@ -439,10 +443,6 @@ try {
   }
 }
 ```
-
-## Demo
-
-[Try the interactive demo](https://motioneffector.github.io/i18n/demo.html) to see the library in action.
 
 ## Browser Support
 
