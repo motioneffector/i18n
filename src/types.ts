@@ -55,12 +55,6 @@ export interface I18n {
   setMissingBehavior: (behavior: MissingBehavior) => I18n
   namespace: (prefix: string | null | undefined) => TranslateFunction
   formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string
-  formatDate: (
-    value: Date | number | string,
-    options?: Intl.DateTimeFormatOptions
-  ) => string
-  formatRelativeTime: (
-    value: number,
-    unit: Intl.RelativeTimeFormatUnit
-  ) => string
+  formatDate: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+  formatRelativeTime: (value: number, unit: Intl.RelativeTimeFormatUnit) => string
 }
