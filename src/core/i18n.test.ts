@@ -1706,7 +1706,9 @@ describe('12. Formatting Extensions', () => {
 
     it('handles very large numbers', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
-      expect(() => i18n.formatNumber(1e15)).not.toThrow()
+      const result = i18n.formatNumber(1e15)
+      expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
     })
 
     it('handles decimals with precision options', () => {
@@ -1742,12 +1744,16 @@ describe('12. Formatting Extensions', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
       const result = i18n.formatDate(1710460800000)
       expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
     })
 
     it('formats ISO string as date', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
       const result = i18n.formatDate('2024-03-15T10:30:00Z')
       expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
     })
 
     it('accepts Intl.DateTimeFormat options', () => {
@@ -1799,13 +1805,12 @@ describe('12. Formatting Extensions', () => {
 
     it('supports all standard units', () => {
       const i18n = createI18n({ defaultLocale: 'en' })
-      expect(() => i18n.formatRelativeTime(1, 'second')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'minute')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'hour')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'day')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'week')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'month')).not.toThrow()
-      expect(() => i18n.formatRelativeTime(1, 'year')).not.toThrow()
+      const units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'] as const
+      units.forEach(unit => {
+        const result = i18n.formatRelativeTime(1, unit)
+        expect(result).toBeTruthy()
+        expect(typeof result).toBe('string')
+      })
     })
 
     it('uses current locale', () => {
@@ -1817,6 +1822,8 @@ describe('12. Formatting Extensions', () => {
       const i18n = createI18n({ defaultLocale: 'en' })
       const result = i18n.formatRelativeTime(0, 'day')
       expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
     })
 
     describe('Invalid Inputs', () => {

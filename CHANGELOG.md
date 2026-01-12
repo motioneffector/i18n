@@ -5,28 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] - 2025-01-11
 
 ### Added
+- Initial public release
+- Core translation system with key-based lookups
+- Interpolation support with `{{placeholder}}` syntax
+- Automatic pluralization using `Intl.PluralRules`
+- Nested key support with dot notation
+- Fallback locale chain for missing translations
+- Lazy loading with `loadPath` configuration
+- Change event callbacks (`onChange`)
+- Missing translation callbacks (`onMissing`)
+- Configurable missing behavior (key, empty, throw)
+- Namespace scoping for translation functions
+- Built-in formatting helpers:
+  - `formatNumber()` using `Intl.NumberFormat`
+  - `formatDate()` using `Intl.DateTimeFormat`
+  - `formatRelativeTime()` using `Intl.RelativeTimeFormat`
+- Full TypeScript support with complete type definitions
+- Zero dependencies
+- Comprehensive test suite (200+ tests)
+- Interactive demo page
 
-- Initial implementation of i18n library
-- Core translation functionality with nested key lookup using dot notation
-- String interpolation with `{{placeholder}}` syntax
-- Pluralization support using Intl.PluralRules API
-- Locale fallback chain support
-- Lazy loading of translation files via async `loadPath` function
-- Event system with `onChange` and `onMissing` callbacks
-- Configurable missing translation behavior (key, empty, throw)
-- Namespace scoping for translations
-- Formatting utilities: `formatNumber`, `formatDate`, `formatRelativeTime`
-- TypeScript support with strict type checking
-- Comprehensive test suite with 200 test cases
-- Custom I18nError class for library-specific errors
-
-### Technical Details
-
-- Built with TypeScript and Vite
-- Uses Object.create(null) for translation storage to prevent prototype pollution
-- Safe handling of reserved JavaScript properties (__proto__, constructor, prototype)
-- Strict ESLint and Prettier configuration
-- Full test coverage using Vitest
+[0.1.0]: https://github.com/motioneffector/i18n/releases/tag/v0.1.0
