@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@motioneffector/i18n - Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #34495e;
+      margin-top: 0;
+    }
+    section {
+      margin: 20px 0;
+      padding: 20px;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .test-pass {
+      color: #28a745;
+      font-weight: 500;
+    }
+    .test-fail {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    .test-output {
+      background: #f8f9fa;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+    .test-output:empty::before {
+      content: 'No test results yet. Click "Run All Tests" to begin.';
+      color: #6c757d;
+      font-style: italic;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 4px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .run-all {
+      background: #28a745;
+      color: white;
+      font-size: 16px;
+      padding: 12px 24px;
+    }
+    .run-all:hover {
+      background: #218838;
+    }
+    .clear-btn {
+      background: #6c757d;
+      color: white;
+    }
+    .clear-btn:hover {
+      background: #5a6268;
+    }
+    .summary {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .summary.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .summary.failure {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    input, select, textarea {
+      padding: 8px 12px;
+      margin: 4px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    .input-group {
+      margin: 10px 0;
+    }
+    .input-group label {
+      display: inline-block;
+      width: 150px;
+      font-weight: 500;
+    }
+    .output {
+      background: #e9ecef;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 10px 0;
+      min-height: 40px;
+      font-family: 'Courier New', monospace;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+    .action-btn {
+      background: #007bff;
+      color: white;
+    }
+    .action-btn:hover {
+      background: #0056b3;
+    }
+    code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #e83e8c;
+    }
+    .description {
+      color: #6c757d;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    .progress {
+      margin: 10px 0;
+      font-style: italic;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>@motioneffector/i18n Demo</h1>
+
+  <section id="test-runner">
+    <h2>🧪 Automated Tests</h2>
+    <p class="description">
+      Comprehensive test suite covering all major features of the library.
+      Click "Run All Tests" to execute the full test suite.
+    </p>
+    <div class="controls">
+      <button class="run-all" onclick="runAllTests()">▶ Run All Tests</button>
+      <button class="clear-btn" onclick="clearResults()">🗑 Clear Results</button>
+    </div>
+    <div class="progress" id="progress"></div>
+    <div class="summary" id="summary"></div>
+    <div class="test-output" id="test-output"></div>
+  </section>
+
+  <section>
+    <h2>🌍 Basic Translation</h2>
+    <p class="description">
+      Translate keys in the current locale. Try nested keys using dot notation like <code>common.save</code>.
+    </p>
+    <div class="input-group">
+      <label>Translation Key:</label>
+      <input type="text" id="translate-key" value="hello" placeholder="e.g. common.save">
+      <button class="action-btn" onclick="testTranslate()">Translate</button>
+    </div>
+    <div class="output" id="translate-output"></div>
+  </section>
+
+  <section>
+    <h2>🔤 Interpolation</h2>
+    <p class="description">
+      Insert dynamic values into translations using <code>{{placeholder}}</code> syntax.
+    </p>
+    <div class="input-group">
+      <label>Key:</label>
+      <input type="text" id="interp-key" value="greeting" placeholder="greeting">
+    </div>
+    <div class="input-group">
+      <label>Param Name:</label>
+      <input type="text" id="interp-param" value="name" placeholder="name">
+    </div>
+    <div class="input-group">
+      <label>Param Value:</label>
+      <input type="text" id="interp-value" value="World" placeholder="World">
+    </div>
+    <button class="action-btn" onclick="testInterpolation()">Interpolate</button>
+    <div class="output" id="interp-output"></div>
+  </section>
+
+  <section>
+    <h2>🔢 Pluralization</h2>
+    <p class="description">
+      Automatically select the correct plural form based on count and locale.
+    </p>
+    <div class="input-group">
+      <label>Count:</label>
+      <input type="number" id="plural-count" value="5" min="0" max="1000">
+      <button class="action-btn" onclick="testPluralization()">Get Plural</button>
+    </div>
+    <div class="output" id="plural-output"></div>
+  </section>
+
+  <section>
+    <h2>🌐 Locale Switching</h2>
+    <p class="description">
+      Switch between available locales. Translations update automatically.
+    </p>
+    <div class="controls">
+      <button class="action-btn" onclick="switchLocale('en')">🇺🇸 English</button>
+      <button class="action-btn" onclick="switchLocale('es')">🇪🇸 Spanish</button>
+      <button class="action-btn" onclick="switchLocale('de')">🇩🇪 German</button>
+      <button class="action-btn" onclick="switchLocale('fr')">🇫🇷 French</button>
+    </div>
+    <div class="output" id="locale-output"></div>
+    <div class="output" id="locale-demo"></div>
+  </section>
+
+  <section>
+    <h2>🎨 Formatting</h2>
+    <p class="description">
+      Format numbers, dates, and relative times according to the current locale.
+    </p>
+    <div class="input-group">
+      <label>Number to Format:</label>
+      <input type="number" id="format-number" value="1234567.89">
+      <button class="action-btn" onclick="testFormatNumber()">Format Number</button>
+    </div>
+    <div class="output" id="format-number-output"></div>
+
+    <div class="input-group" style="margin-top: 20px;">
+      <label>Relative Time:</label>
+      <input type="number" id="rel-time-value" value="-3">
+      <select id="rel-time-unit">
+        <option value="second">seconds</option>
+        <option value="minute">minutes</option>
+        <option value="hour" selected>hours</option>
+        <option value="day">days</option>
+        <option value="week">weeks</option>
+        <option value="month">months</option>
+        <option value="year">years</option>
+      </select>
+      <button class="action-btn" onclick="testFormatRelativeTime()">Format</button>
+    </div>
+    <div class="output" id="format-time-output"></div>
+  </section>
+
+  <section>
+    <h2>📁 Namespace Scoping</h2>
+    <p class="description">
+      Create scoped translation functions for specific namespaces.
+    </p>
+    <div class="input-group">
+      <label>Namespace:</label>
+      <input type="text" id="namespace-prefix" value="common" placeholder="common">
+      <button class="action-btn" onclick="testNamespace()">Create Scoped Function</button>
+    </div>
+    <div class="input-group">
+      <label>Key in Namespace:</label>
+      <input type="text" id="namespace-key" value="save" placeholder="save">
+      <button class="action-btn" onclick="testNamespacedTranslate()">Translate</button>
+    </div>
+    <div class="output" id="namespace-output"></div>
+  </section>
+
+  <script type="module">
+    import { createI18n } from './dist/index.js'
+
+    // Sample translations
+    const translations = {
+      en: {
+        hello: 'Hello',
+        goodbye: 'Goodbye',
+        greeting: 'Hello, {{name}}!',
+        welcome: 'Welcome, {{name}}! You have {{count}} new messages.',
+        common: {
+          save: 'Save',
+          cancel: 'Cancel',
+          delete: 'Delete'
+        },
+        items: {
+          zero: 'No items',
+          one: '{{count}} item',
+          other: '{{count}} items'
+        },
+        errors: {
+          not_found: '{{item}} not found'
+        }
+      },
+      es: {
+        hello: 'Hola',
+        goodbye: 'Adiós',
+        greeting: '¡Hola, {{name}}!',
+        common: {
+          save: 'Guardar',
+          cancel: 'Cancelar',
+          delete: 'Eliminar'
+        },
+        items: {
+          one: '{{count}} artículo',
+          other: '{{count}} artículos'
+        }
+      },
+      de: {
+        hello: 'Hallo',
+        goodbye: 'Auf Wiedersehen',
+        greeting: 'Hallo, {{name}}!',
+        common: {
+          save: 'Speichern',
+          cancel: 'Abbrechen'
+        }
+      },
+      fr: {
+        hello: 'Bonjour',
+        goodbye: 'Au revoir',
+        greeting: 'Bonjour, {{name}}!',
+        common: {
+          save: 'Enregistrer'
+        }
+      }
+    }
+
+    // Create main i18n instance
+    let i18n = createI18n({
+      defaultLocale: 'en',
+      fallbackLocale: 'en',
+      translations
+    })
+
+    // For namespace testing
+    let namespacedT = null
+
+    // Test definitions
+    const tests = [
+      {
+        name: 'Create instance with default locale',
+        fn: async () => {
+          const instance = createI18n({ defaultLocale: 'en' })
+          if (!instance) throw new Error('Instance is undefined')
+          if (instance.getLocale() !== 'en') throw new Error('Default locale not set')
+        }
+      },
+      {
+        name: 'Create instance with translations',
+        fn: async () => {
+          const instance = createI18n({
+            defaultLocale: 'en',
+            translations: { en: { test: 'Test' } }
+          })
+          if (instance.t('test') !== 'Test') throw new Error('Translation not loaded')
+        }
+      },
+      {
+        name: 'Create instance with fallback locale',
+        fn: async () => {
+          const instance = createI18n({
+            defaultLocale: 'es',
+            fallbackLocale: 'en',
+            translations: { en: { hello: 'Hello' }, es: {} }
+          })
+          if (instance.t('hello') !== 'Hello') throw new Error('Fallback not working')
+        }
+      },
+      {
+        name: 'Throws TypeError for null options',
+        fn: async () => {
+          try {
+            createI18n(null)
+            throw new Error('Should have thrown TypeError')
+          } catch (e) {
+            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
+            if (!e.message.includes('options is required')) throw new Error('Wrong error message')
+          }
+        }
+      },
+      {
+        name: 'Throws TypeError for missing defaultLocale',
+        fn: async () => {
+          try {
+            createI18n({})
+            throw new Error('Should have thrown TypeError')
+          } catch (e) {
+            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
+            if (!e.message.includes('defaultLocale is required')) throw new Error('Wrong error message')
+          }
+        }
+      },
+      {
+        name: 'Basic translation - simple key',
+        fn: async () => {
+          const result = i18n.t('hello')
+          if (result !== 'Hello') throw new Error(`Expected 'Hello', got '${result}'`)
+        }
+      },
+      {
+        name: 'Basic translation - nested key',
+        fn: async () => {
+          const result = i18n.t('common.save')
+          if (result !== 'Save') throw new Error(`Expected 'Save', got '${result}'`)
+        }
+      },
+      {
+        name: 'Returns key for missing translation',
+        fn: async () => {
+          const result = i18n.t('missing.key')
+          if (result !== 'missing.key') throw new Error('Should return key for missing translation')
+        }
+      },
+      {
+        name: 'Interpolation - single placeholder',
+        fn: async () => {
+          const result = i18n.t('greeting', { name: 'Alice' })
+          if (result !== 'Hello, Alice!') throw new Error(`Expected 'Hello, Alice!', got '${result}'`)
+        }
+      },
+      {
+        name: 'Interpolation - multiple placeholders',
+        fn: async () => {
+          const result = i18n.t('welcome', { name: 'Bob', count: 5 })
+          if (result !== 'Welcome, Bob! You have 5 new messages.') {
+            throw new Error(`Unexpected result: ${result}`)
+          }
+        }
+      },
+      {
+        name: 'Interpolation - number to string',
+        fn: async () => {
+          const result = i18n.t('welcome', { name: 'Test', count: 42 })
+          if (!result.includes('42')) throw new Error('Number not converted to string')
+        }
+      },
+      {
+        name: 'Interpolation - missing param leaves placeholder',
+        fn: async () => {
+          const result = i18n.t('greeting', {})
+          if (result !== 'Hello, {{name}}!') throw new Error('Should leave placeholder intact')
+        }
+      },
+      {
+        name: 'Pluralization - zero with zero form',
+        fn: async () => {
+          const result = i18n.t('items', { count: 0 })
+          if (result !== 'No items') throw new Error(`Expected 'No items', got '${result}'`)
+        }
+      },
+      {
+        name: 'Pluralization - one form',
+        fn: async () => {
+          const result = i18n.t('items', { count: 1 })
+          if (result !== '1 item') throw new Error(`Expected '1 item', got '${result}'`)
+        }
+      },
+      {
+        name: 'Pluralization - other form',
+        fn: async () => {
+          const result = i18n.t('items', { count: 5 })
+          if (result !== '5 items') throw new Error(`Expected '5 items', got '${result}'`)
+        }
+      },
+      {
+        name: 'Pluralization - negative count',
+        fn: async () => {
+          const result = i18n.t('items', { count: -1 })
+          if (result !== '-1 item') throw new Error('Negative count not handled correctly')
+        }
+      },
+      {
+        name: 'Locale switching - getLocale',
+        fn: async () => {
+          const initial = i18n.getLocale()
+          if (initial !== 'en') throw new Error('Initial locale incorrect')
+        }
+      },
+      {
+        name: 'Locale switching - setLocale',
+        fn: async () => {
+          i18n.setLocale('es')
+          if (i18n.getLocale() !== 'es') throw new Error('Locale not changed')
+          const result = i18n.t('hello')
+          if (result !== 'Hola') throw new Error('Translation not in new locale')
+          i18n.setLocale('en') // Reset
+        }
+      },
+      {
+        name: 'Fallback chain works',
+        fn: async () => {
+          i18n.setLocale('de')
+          const result = i18n.t('common.delete') // Not in German
+          if (result !== 'Delete') throw new Error('Fallback not used')
+          i18n.setLocale('en') // Reset
+        }
+      },
+      {
+        name: 'getAvailableLocales returns all locales',
+        fn: async () => {
+          const locales = i18n.getAvailableLocales()
+          if (!Array.isArray(locales)) throw new Error('Should return array')
+          if (!locales.includes('en')) throw new Error('Missing en locale')
+          if (!locales.includes('es')) throw new Error('Missing es locale')
+        }
+      },
+      {
+        name: 'addTranslations adds new locale',
+        fn: async () => {
+          i18n.addTranslations('it', { hello: 'Ciao' })
+          const locales = i18n.getAvailableLocales()
+          if (!locales.includes('it')) throw new Error('Locale not added')
+        }
+      },
+      {
+        name: 'addTranslations merges with existing',
+        fn: async () => {
+          const before = i18n.t('hello')
+          i18n.addTranslations('en', { newkey: 'New Value' })
+          const after = i18n.t('hello')
+          const newVal = i18n.t('newkey')
+          if (before !== after) throw new Error('Existing translations overwritten')
+          if (newVal !== 'New Value') throw new Error('New translations not added')
+        }
+      },
+      {
+        name: 'hasKey returns true for existing key',
+        fn: async () => {
+          if (!i18n.hasKey('hello')) throw new Error('Should find existing key')
+        }
+      },
+      {
+        name: 'hasKey returns false for missing key',
+        fn: async () => {
+          if (i18n.hasKey('nonexistent')) throw new Error('Should not find missing key')
+        }
+      },
+      {
+        name: 'hasKey works with nested keys',
+        fn: async () => {
+          if (!i18n.hasKey('common.save')) throw new Error('Should find nested key')
+        }
+      },
+      {
+        name: 'getTranslations returns translation object',
+        fn: async () => {
+          const trans = i18n.getTranslations('en')
+          if (!trans.hello) throw new Error('Missing translation data')
+          if (trans.hello !== 'Hello') throw new Error('Wrong translation value')
+        }
+      },
+      {
+        name: 'getTranslations returns copy (immutable)',
+        fn: async () => {
+          const trans = i18n.getTranslations('en')
+          trans.hello = 'Modified'
+          const original = i18n.t('hello')
+          if (original === 'Modified') throw new Error('Original was mutated')
+        }
+      },
+      {
+        name: 'onChange callback fires on locale change',
+        fn: async () => {
+          let fired = false
+          let newLoc = null
+          let oldLoc = null
+          const unsub = i18n.onChange((newLocale, oldLocale) => {
+            fired = true
+            newLoc = newLocale
+            oldLoc = oldLocale
+          })
+          i18n.setLocale('fr')
+          if (!fired) throw new Error('Callback not fired')
+          if (newLoc !== 'fr') throw new Error('Wrong new locale in callback')
+          if (oldLoc !== 'en') throw new Error('Wrong old locale in callback')
+          unsub()
+          i18n.setLocale('en') // Reset
+        }
+      },
+      {
+        name: 'onChange unsubscribe works',
+        fn: async () => {
+          let count = 0
+          const unsub = i18n.onChange(() => { count++ })
+          i18n.setLocale('es')
+          unsub()
+          i18n.setLocale('en')
+          if (count !== 1) throw new Error('Unsubscribe did not work')
+        }
+      },
+      {
+        name: 'onMissing callback fires for missing key',
+        fn: async () => {
+          let fired = false
+          let missingKey = null
+          const unsub = i18n.onMissing((key, locale) => {
+            fired = true
+            missingKey = key
+          })
+          i18n.t('totally.missing.key')
+          if (!fired) throw new Error('Callback not fired')
+          if (missingKey !== 'totally.missing.key') throw new Error('Wrong key in callback')
+          unsub()
+        }
+      },
+      {
+        name: 'setMissingBehavior - empty',
+        fn: async () => {
+          i18n.setMissingBehavior('empty')
+          const result = i18n.t('missing')
+          if (result !== '') throw new Error('Should return empty string')
+          i18n.setMissingBehavior('key') // Reset
+        }
+      },
+      {
+        name: 'setMissingBehavior - throw',
+        fn: async () => {
+          i18n.setMissingBehavior('throw')
+          try {
+            i18n.t('missing')
+            throw new Error('Should have thrown error')
+          } catch (e) {
+            if (!e.message.includes('Missing translation')) throw new Error('Wrong error')
+          }
+          i18n.setMissingBehavior('key') // Reset
+        }
+      },
+      {
+        name: 'namespace creates scoped function',
+        fn: async () => {
+          const tCommon = i18n.t.namespace('common')
+          const result = tCommon('save')
+          if (result !== 'Save') throw new Error('Namespace translation failed')
+        }
+      },
+      {
+        name: 'namespace with null returns base function',
+        fn: async () => {
+          const tBase = i18n.t.namespace(null)
+          const result = tBase('hello')
+          if (result !== 'Hello') throw new Error('Null namespace failed')
+        }
+      },
+      {
+        name: 'formatNumber formats according to locale',
+        fn: async () => {
+          const result = i18n.formatNumber(1234567.89)
+          if (!result.includes('1') && !result.includes('234')) {
+            throw new Error('Number not formatted')
+          }
+        }
+      },
+      {
+        name: 'formatNumber throws for non-number',
+        fn: async () => {
+          try {
+            i18n.formatNumber('not a number')
+            throw new Error('Should have thrown TypeError')
+          } catch (e) {
+            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
+          }
+        }
+      },
+      {
+        name: 'formatDate formats date objects',
+        fn: async () => {
+          const date = new Date('2024-03-15')
+          const result = i18n.formatDate(date)
+          if (typeof result !== 'string') throw new Error('Should return string')
+          if (result.length === 0) throw new Error('Result is empty')
+        }
+      },
+      {
+        name: 'formatDate handles timestamps',
+        fn: async () => {
+          const timestamp = Date.now()
+          const result = i18n.formatDate(timestamp)
+          if (typeof result !== 'string') throw new Error('Should return string')
+        }
+      },
+      {
+        name: 'formatRelativeTime formats past time',
+        fn: async () => {
+          const result = i18n.formatRelativeTime(-1, 'day')
+          if (typeof result !== 'string') throw new Error('Should return string')
+        }
+      },
+      {
+        name: 'formatRelativeTime formats future time',
+        fn: async () => {
+          const result = i18n.formatRelativeTime(2, 'hour')
+          if (typeof result !== 'string') throw new Error('Should return string')
+        }
+      },
+      {
+        name: 'Handles reserved word keys (__proto__)',
+        fn: async () => {
+          const instance = createI18n({
+            defaultLocale: 'en',
+            translations: {}
+          })
+          // Create object with __proto__ as actual property
+          const obj = Object.create(null)
+          obj.__proto__ = 'SafeValue'
+          instance.addTranslations('en', obj)
+          const result = instance.t('__proto__')
+          if (result !== 'SafeValue') throw new Error('Reserved word not handled safely')
+        }
+      },
+      {
+        name: 'Deep nesting (10 levels) works',
+        fn: async () => {
+          const deep = { a: { b: { c: { d: { e: { f: { g: { h: { i: { j: 'Deep' } } } } } } } } } }
+          const instance = createI18n({
+            defaultLocale: 'en',
+            translations: { en: deep }
+          })
+          const result = instance.t('a.b.c.d.e.f.g.h.i.j')
+          if (result !== 'Deep') throw new Error('Deep nesting failed')
+        }
+      }
+    ]
+
+    // Test runner implementation
+    window.runAllTests = async function() {
+      const output = document.getElementById('test-output')
+      const summary = document.getElementById('summary')
+      const progress = document.getElementById('progress')
+
+      output.textContent = ''
+      summary.textContent = ''
+      progress.textContent = 'Running tests...'
+
+      let passed = 0
+      let failed = 0
+
+      for (let i = 0; i < tests.length; i++) {
+        const test = tests[i]
+        progress.textContent = `Running test ${i + 1}/${tests.length}: ${test.name}`
+
+        try {
+          await test.fn()
+          logResult(test.name, 'PASS')
+          passed++
+        } catch (e) {
+          logResult(test.name, 'FAIL', e.message)
+          failed++
+        }
+
+        // Small delay for visual feedback
+        await new Promise(resolve => setTimeout(resolve, 10))
+      }
+
+      progress.textContent = ''
+      logSummary(passed, failed)
+    }
+
+    function logResult(testName, status, errorMsg) {
+      const output = document.getElementById('test-output')
+      const line = document.createElement('div')
+
+      if (status === 'PASS') {
+        line.innerHTML = `<span class="test-pass">✓ PASS</span> ${testName}`
+      } else {
+        line.innerHTML = `<span class="test-fail">✗ FAIL</span> ${testName}\n  Error: ${errorMsg}`
+      }
+
+      output.appendChild(line)
+      output.scrollTop = output.scrollHeight
+    }
+
+    function logSummary(passed, failed) {
+      const summary = document.getElementById('summary')
+      const total = passed + failed
+
+      summary.textContent = `Test Results: ${passed}/${total} passed`
+
+      if (failed === 0) {
+        summary.className = 'summary success'
+        summary.textContent += ' ✓ All tests passed!'
+      } else {
+        summary.className = 'summary failure'
+        summary.textContent += ` ✗ ${failed} test${failed !== 1 ? 's' : ''} failed`
+      }
+    }
+
+    window.clearResults = function() {
+      document.getElementById('test-output').textContent = ''
+      document.getElementById('summary').textContent = ''
+      document.getElementById('progress').textContent = ''
+    }
+
+    // Interactive demo functions
+    window.testTranslate = function() {
+      const key = document.getElementById('translate-key').value
+      const output = document.getElementById('translate-output')
+
+      try {
+        const result = i18n.t(key)
+        output.textContent = `Result: "${result}"\nCurrent Locale: ${i18n.getLocale()}`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testInterpolation = function() {
+      const key = document.getElementById('interp-key').value
+      const paramName = document.getElementById('interp-param').value
+      const paramValue = document.getElementById('interp-value').value
+      const output = document.getElementById('interp-output')
+
+      try {
+        const params = { [paramName]: paramValue }
+        const result = i18n.t(key, params)
+        output.textContent = `Result: "${result}"\nParams: ${JSON.stringify(params)}`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testPluralization = function() {
+      const count = parseInt(document.getElementById('plural-count').value)
+      const output = document.getElementById('plural-output')
+
+      try {
+        const result = i18n.t('items', { count })
+        output.textContent = `Count: ${count}\nResult: "${result}"\nLocale: ${i18n.getLocale()}`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.switchLocale = function(locale) {
+      try {
+        i18n.setLocale(locale)
+        const output = document.getElementById('locale-output')
+        output.textContent = `✓ Switched to ${locale}`
+
+        // Update demo
+        const demo = document.getElementById('locale-demo')
+        demo.innerHTML = `
+          <strong>Demo Translations:</strong><br>
+          hello: "${i18n.t('hello')}"<br>
+          common.save: "${i18n.t('common.save')}"<br>
+          greeting (name=Alice): "${i18n.t('greeting', { name: 'Alice' })}"
+        `
+      } catch (e) {
+        document.getElementById('locale-output').textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testFormatNumber = function() {
+      const num = parseFloat(document.getElementById('format-number').value)
+      const output = document.getElementById('format-number-output')
+
+      try {
+        const result = i18n.formatNumber(num)
+        const currency = i18n.formatNumber(num, { style: 'currency', currency: 'USD' })
+        output.textContent = `Number: ${result}\nCurrency: ${currency}\nLocale: ${i18n.getLocale()}`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testFormatRelativeTime = function() {
+      const value = parseInt(document.getElementById('rel-time-value').value)
+      const unit = document.getElementById('rel-time-unit').value
+      const output = document.getElementById('format-time-output')
+
+      try {
+        const result = i18n.formatRelativeTime(value, unit)
+        output.textContent = `Result: "${result}"\nLocale: ${i18n.getLocale()}`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testNamespace = function() {
+      const prefix = document.getElementById('namespace-prefix').value
+      const output = document.getElementById('namespace-output')
+
+      try {
+        namespacedT = i18n.t.namespace(prefix || null)
+        output.textContent = `✓ Created scoped translation function for namespace: "${prefix || '(none)'}"`
+      } catch (e) {
+        output.textContent = `Error: ${e.message}`
+      }
+    }
+
+    window.testNamespacedTranslate = function() {
+      const key = document.getElementById('namespace-key').value
+      const output = document.getElementById('namespace-output')
+
+      if (!namespacedT) {
+        output.textContent = 'Error: Please create a scoped function first'
+        return
+      }
+
+      try {
+        const result = namespacedT(key)
+        output.textContent += `\n\nTranslation of "${key}": "${result}"`
+      } catch (e) {
+        output.textContent += `\n\nError: ${e.message}`
+      }
+    }
+
+    // Initialize locale demo on load
+    switchLocale('en')
+  </script>
+</body>
+</html>
