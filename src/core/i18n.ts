@@ -93,7 +93,14 @@ export function createI18n(options?: I18nOptions): I18n {
   // Helper: Deep clone
   function deepClone(obj: TranslationObject): TranslationObject {
     const result = Object.create(null) as TranslationObject
+    const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
     for (const key of Object.keys(obj)) {
+      // Skip dangerous keys that could lead to prototype pollution
+      if (FORBIDDEN_KEYS.has(key)) {
+        continue
+      }
+
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const value = obj[key]
         if (value === undefined) continue
@@ -104,23 +111,21 @@ export function createI18n(options?: I18nOptions): I18n {
         }
       }
     }
-    // Handle __proto__ specifically
-    if (Object.prototype.hasOwnProperty.call(obj, '__proto__')) {
-      Object.defineProperty(result, '__proto__', {
-        value: obj['__proto__'],
-        enumerable: true,
-        writable: true,
-        configurable: true,
-      })
-    }
     return result
   }
 
   // Helper: Deep merge
   function deepMerge(target: TranslationObject, source: TranslationObject): TranslationObject {
     const result = Object.create(null) as TranslationObject
+    const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
     // Copy all properties from target
     for (const key of Object.keys(target)) {
+      // Skip dangerous keys that could lead to prototype pollution
+      if (FORBIDDEN_KEYS.has(key)) {
+        continue
+      }
+
       if (Object.prototype.hasOwnProperty.call(target, key)) {
         const value = target[key]
         if (value !== undefined) {
@@ -128,16 +133,14 @@ export function createI18n(options?: I18nOptions): I18n {
         }
       }
     }
-    if (Object.prototype.hasOwnProperty.call(target, '__proto__')) {
-      Object.defineProperty(result, '__proto__', {
-        value: target['__proto__'],
-        enumerable: true,
-        writable: true,
-        configurable: true,
-      })
-    }
+
     // Merge properties from source
     for (const key of Object.keys(source)) {
+      // Skip dangerous keys that could lead to prototype pollution
+      if (FORBIDDEN_KEYS.has(key)) {
+        continue
+      }
+
       if (Object.prototype.hasOwnProperty.call(source, key)) {
         const value = source[key]
         if (value === undefined) continue
@@ -160,14 +163,7 @@ export function createI18n(options?: I18nOptions): I18n {
         }
       }
     }
-    if (Object.prototype.hasOwnProperty.call(source, '__proto__')) {
-      Object.defineProperty(result, '__proto__', {
-        value: source['__proto__'],
-        enumerable: true,
-        writable: true,
-        configurable: true,
-      })
-    }
+
     return result
   }
 
