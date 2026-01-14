@@ -1338,7 +1338,6 @@ textarea.input {
       <div class="test-runner-header">
         <h2 class="test-runner-title">Test Suite</h2>
         <div class="test-runner-actions">
-          <button class="btn btn-success" id="watch-demo">Watch Demo</button>
           <button class="btn btn-primary" id="run-tests">Run Tests</button>
           <button class="btn btn-secondary" id="run-fuzz">Run Fuzz Tests</button>
           <button class="btn btn-secondary" id="reset-page">Reset Page</button>
@@ -2773,7 +2772,11 @@ testRunner.register('empty key returns empty string', () => {
   expect(i18n.t('')).toBe('')
 })
 
-document.getElementById('run-tests').addEventListener('click', () => testRunner.run())
+document.getElementById('run-tests').addEventListener('click', async () => {
+  await testRunner.run()
+  // After tests complete, play the demo
+  await runAutoDemo()
+})
 
 // Fuzz test runner
 let fuzzRunning = false
@@ -2910,15 +2913,14 @@ async function runAutoDemo() {
   if (demoRunning) return
   demoRunning = true
 
-  const watchBtn = document.getElementById('watch-demo')
-  watchBtn.disabled = true
-  watchBtn.textContent = 'Running...'
+  const runBtn = document.getElementById('run-tests')
+  runBtn.disabled = true
 
   const output = document.getElementById('test-output')
   const progressFill = document.getElementById('progress-fill')
   const progressText = document.getElementById('progress-text')
 
-  output.innerHTML = '<div class="test-output-empty">Watch the exhibits above...</div>'
+  progressText.textContent = 'Now demonstrating exhibits...'
   progressFill.style.width = '0%'
   progressFill.className = 'test-progress-fill'
 
@@ -2990,17 +2992,16 @@ async function runAutoDemo() {
   }
 
   progressFill.classList.add('success')
-  progressText.textContent = 'Demo complete! Try the exhibits yourself or run the test suite.'
+  progressText.textContent = 'Complete! Tests passed and demo finished. Try the exhibits yourself.'
 
   output.innerHTML = `
     <div class="test-item">
       <span class="test-icon pass">&#10003;</span>
-      <span class="test-name">Auto-demo complete - all exhibits demonstrated</span>
+      <span class="test-name">Demo playback complete - all exhibits demonstrated</span>
     </div>
   `
 
-  watchBtn.disabled = false
-  watchBtn.textContent = 'Watch Demo'
+  runBtn.disabled = false
   demoRunning = false
 }
 
@@ -3033,8 +3034,6 @@ function clickButton(selector) {
     btn.click()
   }
 }
-
-document.getElementById('watch-demo').addEventListener('click', runAutoDemo)
   </script>
 </body>
 </html>
