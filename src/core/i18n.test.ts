@@ -1893,11 +1893,12 @@ describe('13. Edge Cases & Error Handling', () => {
       expect(i18n.t('error-code-not-found')).toBe('Error')
     })
 
-    it('handles keys that are reserved words', () => {
+    it('blocks dangerous keys to prevent prototype pollution', () => {
       const translations = Object.create(null)
       translations.constructor = 'Ctor'
       translations.prototype = 'Proto'
       translations['__proto__'] = 'DunderProto'
+      translations.safe = 'SafeValue'
 
       const i18n = createI18n({
         defaultLocale: 'en',
@@ -1905,9 +1906,12 @@ describe('13. Edge Cases & Error Handling', () => {
           en: translations,
         },
       })
-      expect(i18n.t('constructor')).toBe('Ctor')
-      expect(i18n.t('prototype')).toBe('Proto')
-      expect(i18n.t('__proto__')).toBe('DunderProto')
+      // Dangerous keys should be filtered out and return the key itself (missing translation)
+      expect(i18n.t('constructor')).toBe('constructor')
+      expect(i18n.t('prototype')).toBe('prototype')
+      expect(i18n.t('__proto__')).toBe('__proto__')
+      // Safe keys should work normally
+      expect(i18n.t('safe')).toBe('SafeValue')
     })
 
     it('handles keys with unicode characters', () => {
@@ -2035,6 +2039,256 @@ describe('13. Edge Cases & Error Handling', () => {
       i18n.addTranslations('en', { goodbye: 'Goodbye' })
       expect(i18n.t('hello')).toBe('Hello')
       expect(i18n.t('goodbye')).toBe('Goodbye')
+    })
+  })
+})
+
+describe('14. Security: Prototype Pollution Prevention', () => {
+  describe('Prototype pollution via __proto__', () => {
+    it('rejects __proto__ as object key in translations', () => {
+      const malicious = JSON.parse('{"__proto__": {"polluted": "yes"}}')
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify __proto__ key is not accessible as translation
+      expect(i18n.t('__proto__')).toBe('__proto__')
+    })
+
+    it('rejects __proto__ in nested translations', () => {
+      const malicious = {
+        safe: 'value',
+        nested: JSON.parse('{"__proto__": {"polluted": "yes"}}'),
+      }
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+    })
+
+    it('rejects __proto__ via addTranslations', () => {
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: { safe: 'value' } },
+      })
+
+      const malicious = JSON.parse('{"__proto__": {"polluted": "yes"}}')
+      i18n.addTranslations('en', malicious)
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+    })
+
+    it('rejects __proto__ in deeply nested structure', () => {
+      const malicious = {
+        level1: {
+          level2: {
+            level3: JSON.parse('{"__proto__": {"polluted": "yes"}}'),
+          },
+        },
+      }
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+    })
+  })
+
+  describe('Prototype pollution via constructor.prototype', () => {
+    it('rejects constructor as object key', () => {
+      const malicious = { constructor: { prototype: { polluted: 'yes' } } }
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify constructor key is not accessible as translation
+      expect(i18n.t('constructor')).toBe('constructor')
+    })
+
+    it('rejects prototype as object key', () => {
+      const malicious = { prototype: { polluted: 'yes' } }
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify prototype key is not accessible as translation
+      expect(i18n.t('prototype')).toBe('prototype')
+    })
+  })
+
+  describe('Deep merge security', () => {
+    it('prevents pollution when merging translations', () => {
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: { existing: 'value' } },
+      })
+
+      const malicious1 = JSON.parse('{"__proto__": {"polluted": "merge1"}}')
+      const malicious2 = { constructor: { prototype: { polluted: 'merge2' } } }
+
+      i18n.addTranslations('en', malicious1)
+      i18n.addTranslations('en', malicious2)
+
+      // Verify Object.prototype not polluted after multiple merges
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify existing translations still work
+      expect(i18n.t('existing')).toBe('value')
+    })
+
+    it('prevents pollution in complex nested merge', () => {
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: {
+          en: {
+            common: { save: 'Save', cancel: 'Cancel' },
+          },
+        },
+      })
+
+      const malicious = {
+        common: JSON.parse('{"__proto__": {"polluted": "yes"}}'),
+      }
+
+      i18n.addTranslations('en', malicious)
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify existing translations still work
+      expect(i18n.t('common.save')).toBe('Save')
+    })
+  })
+
+  describe('getTranslations isolation', () => {
+    it('returns copy that cannot pollute when mutated', () => {
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: { safe: 'value' } },
+      })
+
+      const translations = i18n.getTranslations()
+
+      // Try to pollute via the returned object
+      ;(translations as any)['__proto__'] = { polluted: 'yes' }
+      ;(translations as any).constructor = { prototype: { polluted: 'yes' } }
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify original translations unaffected
+      expect(i18n.t('safe')).toBe('value')
+    })
+  })
+
+  describe('Array-based attacks', () => {
+    it('does not treat arrays as objects for merge', () => {
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: { safe: 'value' } },
+      })
+
+      // Arrays should not be deep-merged as objects
+      const maliciousArray = ['item1', 'item2'] as any
+      maliciousArray['__proto__'] = { polluted: 'yes' }
+
+      i18n.addTranslations('en', { arr: maliciousArray })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+    })
+  })
+
+  describe('Edge cases', () => {
+    it('handles Object.create(null) input safely', () => {
+      const clean = Object.create(null)
+      clean.safe = 'value'
+      clean['__proto__'] = { polluted: 'yes' }
+
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: clean },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(({} as any).polluted).toBeUndefined()
+
+      // Verify safe key works
+      expect(i18n.t('safe')).toBe('value')
+    })
+
+    it('handles multiple dangerous keys together', () => {
+      const malicious = {
+        __proto__: { polluted1: 'yes' },
+        constructor: { prototype: { polluted2: 'yes' } },
+        prototype: { polluted3: 'yes' },
+        safe: 'value',
+      }
+
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // Verify Object.prototype not polluted
+      expect((Object.prototype as any).polluted1).toBeUndefined()
+      expect((Object.prototype as any).polluted2).toBeUndefined()
+      expect((Object.prototype as any).polluted3).toBeUndefined()
+      expect(({} as any).polluted1).toBeUndefined()
+      expect(({} as any).polluted2).toBeUndefined()
+      expect(({} as any).polluted3).toBeUndefined()
+
+      // Verify safe key works
+      expect(i18n.t('safe')).toBe('value')
+    })
+
+    it('handles toString and valueOf as regular keys', () => {
+      const malicious = {
+        toString: 'string representation',
+        valueOf: 'value representation',
+        safe: 'value',
+      }
+
+      const i18n = createI18n({
+        defaultLocale: 'en',
+        translations: { en: malicious },
+      })
+
+      // toString and valueOf are not forbidden keys, so they work as regular translations
+      // They don't pollute prototypes because we use Object.create(null)
+      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(i18n.t('toString')).toBe('string representation')
+      expect(i18n.t('valueOf')).toBe('value representation')
+      expect(i18n.t('safe')).toBe('value')
     })
   })
 })
