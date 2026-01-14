@@ -1338,8 +1338,10 @@ textarea.input {
       <div class="test-runner-header">
         <h2 class="test-runner-title">Test Suite</h2>
         <div class="test-runner-actions">
+          <button class="btn btn-success" id="watch-demo">Watch Demo</button>
           <button class="btn btn-primary" id="run-tests">Run Tests</button>
           <button class="btn btn-secondary" id="run-fuzz">Run Fuzz Tests</button>
+          <button class="btn btn-secondary" id="reset-page">Reset Page</button>
         </div>
       </div>
       <div class="test-runner-content">
@@ -2889,6 +2891,150 @@ document.getElementById('run-fuzz').addEventListener('click', async () => {
   runBtn.disabled = false
   fuzzRunning = false
 })
+
+// ============================================
+// RESET PAGE
+// ============================================
+
+document.getElementById('reset-page').addEventListener('click', () => {
+  location.reload()
+})
+
+// ============================================
+// WATCH DEMO (AUTO-DEMO)
+// ============================================
+
+let demoRunning = false
+
+async function runAutoDemo() {
+  if (demoRunning) return
+  demoRunning = true
+
+  const watchBtn = document.getElementById('watch-demo')
+  watchBtn.disabled = true
+  watchBtn.textContent = 'Running...'
+
+  const output = document.getElementById('test-output')
+  const progressFill = document.getElementById('progress-fill')
+  const progressText = document.getElementById('progress-text')
+
+  output.innerHTML = '<div class="test-output-empty">Watch the exhibits above...</div>'
+  progressFill.style.width = '0%'
+  progressFill.className = 'test-progress-fill'
+
+  const steps = [
+    // Exhibit 1: Plural Rule Visualizer
+    { name: 'Plural: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-plural') },
+    { name: 'Plural: Show count=1 (singular)', fn: () => setSliderValue('plural-slider', 1) },
+    { name: 'Plural: Show count=2', fn: () => setSliderValue('plural-slider', 2) },
+    { name: 'Plural: Show count=5', fn: () => setSliderValue('plural-slider', 5) },
+    { name: 'Plural: Show count=21 (RU surprise!)', fn: () => setSliderValue('plural-slider', 21) },
+    { name: 'Plural: Switch to English/Arabic', fn: () => clickButton('[data-locale-pair="en-ar"]') },
+    { name: 'Plural: Show count=2 (AR two form)', fn: () => setSliderValue('plural-slider', 2) },
+    { name: 'Plural: Show count=11', fn: () => setSliderValue('plural-slider', 11) },
+    { name: 'Plural: Switch to German/Polish', fn: () => clickButton('[data-locale-pair="de-pl"]') },
+    { name: 'Plural: Show count=3', fn: () => setSliderValue('plural-slider', 3) },
+    { name: 'Plural: Reset to English/Russian', fn: () => clickButton('[data-locale-pair="en-ru"]') },
+
+    // Exhibit 2: Interpolation Machine
+    { name: 'Interp: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-interp') },
+    { name: 'Interp: Change name to "World"', fn: () => setInputValue('.interp-param-input[data-param="name"]', 'World') },
+    { name: 'Interp: Change count to "7"', fn: () => setInputValue('.interp-param-input[data-param="count"]', '7') },
+    { name: 'Interp: Change sender to "Claude"', fn: () => setInputValue('.interp-param-input[data-param="sender"]', 'Claude') },
+    { name: 'Interp: Animate substitution', fn: () => animateSubstitution() },
+    { name: 'Interp: Reset to defaults', fn: () => { interpParams.name = 'Alice'; interpParams.count = '3'; interpParams.sender = 'Bob'; renderInterpolation() } },
+
+    // Exhibit 3: Format Dissector
+    { name: 'Format: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-format') },
+    { name: 'Format: Show decimal separator', fn: () => clickButton('.format-part-btn[data-part="decimal"]') },
+    { name: 'Format: Show symbol position', fn: () => clickButton('.format-part-btn[data-part="symbol"]') },
+    { name: 'Format: Change to percent format', fn: () => { document.getElementById('format-type').value = 'percent'; renderFormatAnatomy() } },
+    { name: 'Format: Show digit grouping', fn: () => clickButton('.format-part-btn[data-part="digits"]') },
+    { name: 'Format: Change value to 9876543.21', fn: () => { document.getElementById('format-value').value = '9876543.21'; renderFormatAnatomy() } },
+    { name: 'Format: Change to compact format', fn: () => { document.getElementById('format-type').value = 'compact'; renderFormatAnatomy() } },
+    { name: 'Format: Reset to currency', fn: () => { document.getElementById('format-type').value = 'currency'; document.getElementById('format-value').value = '1234567.89'; clickButton('.format-part-btn[data-part="thousand"]'); renderFormatAnatomy() } },
+
+    // Exhibit 4: Translation Tree Walker
+    { name: 'Tree: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-tree') },
+    { name: 'Tree: Look up common.buttons.cancel', fn: () => { document.getElementById('tree-key').value = 'common.buttons.cancel'; lookupKey('common.buttons.cancel') } },
+    { name: 'Tree: Look up messages.greeting', fn: () => { document.getElementById('tree-key').value = 'messages.greeting'; lookupKey('messages.greeting') } },
+    { name: 'Tree: Try failing key (common.buttons.nope)', fn: () => { document.getElementById('tree-key').value = 'common.buttons.nope'; lookupKey('common.buttons.nope') } },
+    { name: 'Tree: Try errors.required', fn: () => { document.getElementById('tree-key').value = 'errors.required'; lookupKey('errors.required') } },
+    { name: 'Tree: Reset to common.buttons.save', fn: () => { document.getElementById('tree-key').value = 'common.buttons.save'; lookupKey('common.buttons.save') } },
+
+    // Final: scroll to test runner
+    { name: 'Demo complete!', fn: () => scrollToExhibit('test-output') }
+  ]
+
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i]
+    const progress = ((i + 1) / steps.length) * 100
+
+    progressFill.style.width = `${progress}%`
+    progressText.textContent = step.name
+
+    output.innerHTML = `
+      <div class="test-item">
+        <span class="test-icon pass" style="color: var(--accent-blue);">&#9654;</span>
+        <span class="test-name">${escapeHtml(step.name)}</span>
+      </div>
+    `
+
+    try {
+      await step.fn()
+    } catch (e) {
+      console.error('Auto-demo error:', e)
+    }
+
+    await sleep(400) // Human-perceptible delay
+  }
+
+  progressFill.classList.add('success')
+  progressText.textContent = 'Demo complete! Try the exhibits yourself or run the test suite.'
+
+  output.innerHTML = `
+    <div class="test-item">
+      <span class="test-icon pass">&#10003;</span>
+      <span class="test-name">Auto-demo complete - all exhibits demonstrated</span>
+    </div>
+  `
+
+  watchBtn.disabled = false
+  watchBtn.textContent = 'Watch Demo'
+  demoRunning = false
+}
+
+function scrollToExhibit(id) {
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+}
+
+function setSliderValue(id, value) {
+  const slider = document.getElementById(id)
+  if (slider) {
+    slider.value = value
+    slider.dispatchEvent(new Event('input'))
+  }
+}
+
+function setInputValue(selector, value) {
+  const input = document.querySelector(selector)
+  if (input) {
+    input.value = value
+    input.dispatchEvent(new Event('input'))
+  }
+}
+
+function clickButton(selector) {
+  const btn = document.querySelector(selector)
+  if (btn) {
+    btn.click()
+  }
+}
+
+document.getElementById('watch-demo').addEventListener('click', runAutoDemo)
   </script>
 </body>
 </html>
