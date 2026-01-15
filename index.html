@@ -5,1265 +5,3035 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@motioneffector/i18n - Demo</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f8f9fa;
-      color: #212529;
-    }
-    h1 {
-      color: #2c3e50;
-      border-bottom: 3px solid #3498db;
-      padding-bottom: 10px;
-    }
-    h2 {
-      color: #34495e;
-      margin-top: 0;
-    }
-    section {
-      margin: 20px 0;
-      padding: 20px;
-      background: white;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .test-pass {
-      color: #28a745;
-      font-weight: 500;
-    }
-    .test-fail {
-      color: #dc3545;
-      font-weight: bold;
-    }
-    .test-output {
-      background: #f8f9fa;
-      padding: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      white-space: pre-wrap;
-      max-height: 500px;
-      overflow-y: auto;
-      border: 1px solid #dee2e6;
-      border-radius: 4px;
-      margin-top: 15px;
-    }
-    .test-output:empty::before {
-      content: 'No test results yet. Click "Run All Tests" to begin.';
-      color: #6c757d;
-      font-style: italic;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 4px;
-      cursor: pointer;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .run-all {
-      background: #28a745;
-      color: white;
-      font-size: 16px;
-      padding: 12px 24px;
-    }
-    .run-all:hover {
-      background: #218838;
-    }
-    .clear-btn {
-      background: #6c757d;
-      color: white;
-    }
-    .clear-btn:hover {
-      background: #5a6268;
-    }
-    .summary {
-      font-size: 18px;
-      font-weight: bold;
-      margin: 15px 0;
-      padding: 10px;
-      border-radius: 4px;
-    }
-    .summary.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .summary.failure {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    input, select, textarea {
-      padding: 8px 12px;
-      margin: 4px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #80bdff;
-      box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-    }
-    .input-group {
-      margin: 10px 0;
-    }
-    .input-group label {
-      display: inline-block;
-      width: 150px;
-      font-weight: 500;
-    }
-    .output {
-      background: #e9ecef;
-      padding: 12px;
-      border-radius: 4px;
-      margin: 10px 0;
-      min-height: 40px;
-      font-family: 'Courier New', monospace;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 15px 0;
-    }
-    .action-btn {
-      background: #007bff;
-      color: white;
-    }
-    .action-btn:hover {
-      background: #0056b3;
-    }
-    code {
-      background: #f8f9fa;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-      color: #e83e8c;
-    }
-    .description {
-      color: #6c757d;
-      margin-bottom: 15px;
-      line-height: 1.6;
-    }
-    .progress {
-      margin: 10px 0;
-      font-style: italic;
-      color: #007bff;
-    }
+/* ============================================
+   RESET & BASE
+   ============================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #e6edf3;
+  background: #0d1117;
+  min-height: 100vh;
+}
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-hover: #30363d;
+
+  /* Borders */
+  --border-default: #30363d;
+  --border-muted: #21262d;
+
+  /* Text */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --text-link: #58a6ff;
+
+  /* Accents */
+  --accent-blue: #1f6feb;
+  --accent-blue-hover: #388bfd;
+  --accent-green: #238636;
+  --accent-green-bright: #3fb950;
+  --accent-red: #da3633;
+  --accent-red-bright: #f85149;
+  --accent-yellow: #d29922;
+  --accent-yellow-bright: #e3b341;
+  --accent-purple: #8957e5;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Typography */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-xxl: 2rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+  /* Transitions */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.header {
+  margin-bottom: var(--space-xxl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.header-title {
+  font-size: var(--font-size-xxl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.header-description {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.header-links {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-link);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.header-link:hover {
+  background: var(--bg-tertiary);
+  text-decoration: underline;
+}
+
+/* ============================================
+   EXHIBITS
+   ============================================ */
+
+.exhibits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+}
+
+.exhibit {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.exhibit-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.exhibit-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.exhibit-description {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+.exhibit-content {
+  padding: var(--space-lg);
+}
+
+.exhibit-interactive {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.exhibit-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.exhibit-state {
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.exhibit-state-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-blue-hover);
+  border-color: var(--accent-blue-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+  border-color: var(--accent-red);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--accent-red-bright);
+}
+
+.btn-success {
+  background: var(--accent-green);
+  color: white;
+  border-color: var(--accent-green);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--accent-green-bright);
+}
+
+.btn-small {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+
+.input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-mono {
+  font-family: var(--font-mono);
+}
+
+select.input {
+  cursor: pointer;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* ============================================
+   TOGGLE
+   ============================================ */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--bg-hover);
+  border-radius: 11px;
+  transition: background var(--transition-normal);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  transition: transform var(--transition-normal);
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle input:checked + .toggle-switch {
+  background: var(--accent-blue);
+}
+
+.toggle input:checked + .toggle-switch::after {
+  transform: translateX(18px);
+}
+
+.toggle-label {
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   TAGS / BADGES
+   ============================================ */
+
+.tag {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.tag-blue {
+  background: rgba(31, 111, 235, 0.2);
+  color: var(--accent-blue-hover);
+}
+
+.tag-green {
+  background: rgba(35, 134, 54, 0.2);
+  color: var(--accent-green-bright);
+}
+
+.tag-red {
+  background: rgba(218, 54, 51, 0.2);
+  color: var(--accent-red-bright);
+}
+
+.tag-yellow {
+  background: rgba(210, 153, 34, 0.2);
+  color: var(--accent-yellow-bright);
+}
+
+.tag-purple {
+  background: rgba(137, 87, 229, 0.2);
+  color: var(--accent-purple);
+}
+
+/* ============================================
+   TEST RUNNER
+   ============================================ */
+
+.test-runner {
+  margin-top: var(--space-xxl);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.test-runner-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.test-runner-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.test-runner-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.test-runner-content {
+  padding: var(--space-lg);
+}
+
+.test-progress {
+  margin-bottom: var(--space-lg);
+}
+
+.test-progress-bar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--space-sm);
+}
+
+.test-progress-fill {
+  height: 100%;
+  background: var(--accent-blue);
+  border-radius: 4px;
+  transition: width var(--transition-fast);
+  width: 0%;
+}
+
+.test-progress-fill.success {
+  background: var(--accent-green);
+}
+
+.test-progress-fill.failure {
+  background: var(--accent-red);
+}
+
+.test-progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.test-output {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.test-output-empty {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.test-item {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.test-item:last-child {
+  border-bottom: none;
+}
+
+.test-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-md);
+}
+
+.test-icon.pass {
+  color: var(--accent-green-bright);
+}
+
+.test-icon.fail {
+  color: var(--accent-red-bright);
+}
+
+.test-name {
+  color: var(--text-primary);
+}
+
+.test-error {
+  color: var(--accent-red-bright);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-xs);
+}
+
+.test-summary {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.test-summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.test-summary-item.passed {
+  color: var(--accent-green-bright);
+}
+
+.test-summary-item.failed {
+  color: var(--accent-red-bright);
+}
+
+.test-summary-item.skipped {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--accent-green-bright); }
+.text-error { color: var(--accent-red-bright); }
+.text-warning { color: var(--accent-yellow-bright); }
+
+.font-mono { font-family: var(--font-mono); }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+
+.hidden { display: none; }
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-default);
+}
+
+/* ============================================
+   EXHIBIT-SPECIFIC STYLES
+   ============================================ */
+
+/* Plural Rule Visualizer */
+.plural-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.plural-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  outline: none;
+}
+
+.plural-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.plural-slider::-webkit-slider-thumb:hover {
+  background: var(--accent-blue-hover);
+}
+
+.plural-count-display {
+  text-align: center;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plural-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .plural-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plural-locale {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.plural-locale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.plural-locale-name {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+}
+
+.plural-forms-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.plural-form-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  transition: all var(--transition-fast);
+}
+
+.plural-form-row.active {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.plural-form-name {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.plural-form-value {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.plural-form-row.active .plural-form-value {
+  color: rgba(255,255,255,0.9);
+}
+
+.plural-api-call {
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.plural-result {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.plural-result-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.plural-result-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+/* Interpolation Machine */
+.interp-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.interp-section {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.interp-section-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.interp-template {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.interp-placeholder {
+  background: rgba(31, 111, 235, 0.3);
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: var(--accent-blue-hover);
+  transition: all var(--transition-fast);
+}
+
+.interp-placeholder.highlight {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.interp-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.interp-param {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.interp-param-name {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.interp-param-input {
+  width: 120px;
+}
+
+.interp-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-xl);
+}
+
+.interp-output {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  color: var(--accent-green-bright);
+  line-height: 1.6;
+}
+
+.interp-output .substituted {
+  background: rgba(35, 134, 54, 0.3);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Format Dissector */
+.format-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.format-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.format-input-row label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.format-input {
+  width: 200px;
+}
+
+.format-anatomy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.format-locale-display {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.format-locale-name {
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.format-dissected {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.format-part {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.format-part:hover {
+  background: var(--bg-hover);
+}
+
+.format-part.highlight {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.format-part-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  background: var(--bg-primary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.format-part:hover .format-part-label,
+.format-part.highlight .format-part-label {
+  opacity: 1;
+}
+
+.format-comparison {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.format-comparison-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.format-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+}
+
+.format-comparison-item {
+  background: var(--bg-primary);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.format-comparison-locale {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.format-comparison-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.format-comparison-desc {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+/* Translation Tree Walker */
+.tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.tree-input-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.tree-key-input {
+  flex: 1;
+  font-family: var(--font-mono);
+}
+
+.tree-visualization {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  overflow-x: auto;
+}
+
+.tree-node {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tree-node-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.tree-node-content:hover {
+  background: var(--bg-hover);
+}
+
+.tree-node-content.visited {
+  border-color: var(--accent-blue);
+  background: rgba(31, 111, 235, 0.1);
+}
+
+.tree-node-content.current {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.tree-node-content.found {
+  background: var(--accent-green);
+  color: white;
+}
+
+.tree-node-content.not-found {
+  background: var(--accent-red);
+  color: white;
+}
+
+.tree-children {
+  margin-left: var(--space-xl);
+  padding-left: var(--space-md);
+  border-left: 2px solid var(--border-default);
+  margin-top: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.tree-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.tree-path-segment {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.tree-path-segment.active {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.tree-path-arrow {
+  color: var(--text-muted);
+}
+
+.tree-result {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tree-result-label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.tree-result-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.tree-result-value.success {
+  color: var(--accent-green-bright);
+}
+
+.tree-result-value.error {
+  color: var(--accent-red-bright);
+}
+
+.tree-suggestions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.tree-suggestion {
+  font-size: var(--font-size-xs);
+}
   </style>
 </head>
 <body>
-  <h1>@motioneffector/i18n Demo</h1>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">A lightweight, type-safe internationalization library with zero dependencies</p>
+      <nav class="header-links">
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link" target="_blank">
+          npm
+        </a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link" target="_blank">
+          GitHub
+        </a>
+        <a href="https://github.com/motioneffector/i18n/wiki" class="header-link" target="_blank">
+          Manual
+        </a>
+      </nav>
+    </header>
 
-  <section id="test-runner">
-    <h2>🧪 Automated Tests</h2>
-    <p class="description">
-      Comprehensive test suite covering all major features of the library.
-      Click "Run All Tests" to execute the full test suite.
-    </p>
-    <div class="controls">
-      <button class="run-all" onclick="runAllTests()">▶ Run All Tests</button>
-      <button class="clear-btn" onclick="clearResults()">🗑 Clear Results</button>
-    </div>
-    <div class="progress" id="progress"></div>
-    <div class="summary" id="summary"></div>
-    <div class="test-output" id="test-output"></div>
-  </section>
+    <main class="exhibits">
+      <!-- Exhibit 1: Plural Rule Visualizer -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Plural Rule Visualizer</h2>
+          <p class="exhibit-description">Watch how Intl.PluralRules selects different forms for different languages. The same number can trigger different rules!</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive" id="exhibit-plural">
+            <div class="plural-slider-container">
+              <input type="range" class="plural-slider" id="plural-slider" min="0" max="100" value="21">
+              <div class="plural-count-display">count: <span id="plural-count">21</span></div>
+            </div>
 
-  <section>
-    <h2>🌍 Basic Translation</h2>
-    <p class="description">
-      Translate keys in the current locale. Try nested keys using dot notation like <code>common.save</code>.
-    </p>
-    <div class="input-group">
-      <label>Translation Key:</label>
-      <input type="text" id="translate-key" value="hello" placeholder="e.g. common.save">
-      <button class="action-btn" onclick="testTranslate()">Translate</button>
-    </div>
-    <div class="output" id="translate-output"></div>
-  </section>
+            <div class="plural-comparison">
+              <div class="plural-locale" id="plural-locale-1">
+                <div class="plural-locale-header">
+                  <span class="plural-locale-name">English (en)</span>
+                  <span class="tag tag-blue">2 forms</span>
+                </div>
+                <div class="plural-forms-table" id="plural-forms-en"></div>
+                <div class="plural-api-call" id="plural-api-en"></div>
+              </div>
 
-  <section>
-    <h2>🔤 Interpolation</h2>
-    <p class="description">
-      Insert dynamic values into translations using <code>{{placeholder}}</code> syntax.
-    </p>
-    <div class="input-group">
-      <label>Key:</label>
-      <input type="text" id="interp-key" value="greeting" placeholder="greeting">
-    </div>
-    <div class="input-group">
-      <label>Param Name:</label>
-      <input type="text" id="interp-param" value="name" placeholder="name">
-    </div>
-    <div class="input-group">
-      <label>Param Value:</label>
-      <input type="text" id="interp-value" value="World" placeholder="World">
-    </div>
-    <button class="action-btn" onclick="testInterpolation()">Interpolate</button>
-    <div class="output" id="interp-output"></div>
-  </section>
+              <div class="plural-locale" id="plural-locale-2">
+                <div class="plural-locale-header">
+                  <span class="plural-locale-name">Russian (ru)</span>
+                  <span class="tag tag-purple">4 forms</span>
+                </div>
+                <div class="plural-forms-table" id="plural-forms-ru"></div>
+                <div class="plural-api-call" id="plural-api-ru"></div>
+              </div>
+            </div>
 
-  <section>
-    <h2>🔢 Pluralization</h2>
-    <p class="description">
-      Automatically select the correct plural form based on count and locale.
-    </p>
-    <div class="input-group">
-      <label>Count:</label>
-      <input type="number" id="plural-count" value="5" min="0" max="1000">
-      <button class="action-btn" onclick="testPluralization()">Get Plural</button>
-    </div>
-    <div class="output" id="plural-output"></div>
-  </section>
+            <div class="plural-result">
+              <div class="plural-result-label">Translation Output</div>
+              <div class="flex gap-lg justify-between" style="margin-top: var(--space-sm);">
+                <div>
+                  <div class="text-muted" style="font-size: var(--font-size-xs);">English</div>
+                  <div class="plural-result-value" id="plural-result-en"></div>
+                </div>
+                <div>
+                  <div class="text-muted" style="font-size: var(--font-size-xs);">Russian</div>
+                  <div class="plural-result-value" id="plural-result-ru"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <section>
-    <h2>🌐 Locale Switching</h2>
-    <p class="description">
-      Switch between available locales. Translations update automatically.
-    </p>
-    <div class="controls">
-      <button class="action-btn" onclick="switchLocale('en')">🇺🇸 English</button>
-      <button class="action-btn" onclick="switchLocale('es')">🇪🇸 Spanish</button>
-      <button class="action-btn" onclick="switchLocale('de')">🇩🇪 German</button>
-      <button class="action-btn" onclick="switchLocale('fr')">🇫🇷 French</button>
-    </div>
-    <div class="output" id="locale-output"></div>
-    <div class="output" id="locale-demo"></div>
-  </section>
+          <div class="exhibit-controls">
+            <button class="btn btn-secondary btn-small" data-locale-pair="en-ru" data-active="true">English / Russian</button>
+            <button class="btn btn-secondary btn-small" data-locale-pair="en-ar">English / Arabic</button>
+            <button class="btn btn-secondary btn-small" data-locale-pair="de-pl">German / Polish</button>
+          </div>
 
-  <section>
-    <h2>🎨 Formatting</h2>
-    <p class="description">
-      Format numbers, dates, and relative times according to the current locale.
-    </p>
-    <div class="input-group">
-      <label>Number to Format:</label>
-      <input type="number" id="format-number" value="1234567.89">
-      <button class="action-btn" onclick="testFormatNumber()">Format Number</button>
-    </div>
-    <div class="output" id="format-number-output"></div>
+          <div class="exhibit-state">
+            <div class="exhibit-state-title">API Call</div>
+            <div id="plural-state" class="font-mono">new Intl.PluralRules('en').select(21) // "other"</div>
+          </div>
+        </div>
+      </section>
 
-    <div class="input-group" style="margin-top: 20px;">
-      <label>Relative Time:</label>
-      <input type="number" id="rel-time-value" value="-3">
-      <select id="rel-time-unit">
-        <option value="second">seconds</option>
-        <option value="minute">minutes</option>
-        <option value="hour" selected>hours</option>
-        <option value="day">days</option>
-        <option value="week">weeks</option>
-        <option value="month">months</option>
-        <option value="year">years</option>
-      </select>
-      <button class="action-btn" onclick="testFormatRelativeTime()">Format</button>
-    </div>
-    <div class="output" id="format-time-output"></div>
-  </section>
+      <!-- Exhibit 2: Interpolation Machine -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Interpolation Machine</h2>
+          <p class="exhibit-description">See how template placeholders get replaced with actual values. Watch the substitution happen step by step.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive" id="exhibit-interp">
+            <div class="interp-container">
+              <div class="interp-section">
+                <div class="interp-section-label">Template</div>
+                <div class="interp-template" id="interp-template"></div>
+              </div>
 
-  <section>
-    <h2>📁 Namespace Scoping</h2>
-    <p class="description">
-      Create scoped translation functions for specific namespaces.
-    </p>
-    <div class="input-group">
-      <label>Namespace:</label>
-      <input type="text" id="namespace-prefix" value="common" placeholder="common">
-      <button class="action-btn" onclick="testNamespace()">Create Scoped Function</button>
-    </div>
-    <div class="input-group">
-      <label>Key in Namespace:</label>
-      <input type="text" id="namespace-key" value="save" placeholder="save">
-      <button class="action-btn" onclick="testNamespacedTranslate()">Translate</button>
-    </div>
-    <div class="output" id="namespace-output"></div>
-  </section>
+              <div class="interp-arrow">&#8595;</div>
 
-  <script>
-    // Inlined library code from dist/index.js
-    class I18nError extends Error {
-      constructor(l) {
-        super(l);
-        this.name = "I18nError";
-        Object.setPrototypeOf(this, new.target.prototype);
-      }
+              <div class="interp-section">
+                <div class="interp-section-label">Parameters</div>
+                <div class="interp-params" id="interp-params"></div>
+              </div>
+
+              <div class="interp-arrow">&#8595;</div>
+
+              <div class="interp-section">
+                <div class="interp-section-label">Output</div>
+                <div class="interp-output" id="interp-output"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="exhibit-controls">
+            <button class="btn btn-primary btn-small" id="interp-animate">Animate Substitution</button>
+            <button class="btn btn-secondary btn-small" id="interp-reset">Reset</button>
+          </div>
+
+          <div class="exhibit-state">
+            <div class="exhibit-state-title">Translation Call</div>
+            <div id="interp-state" class="font-mono">i18n.t('greeting', { name: 'Alice', count: 3, sender: 'Bob' })</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Exhibit 3: Format Dissector -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Format Dissector</h2>
+          <p class="exhibit-description">Examine the anatomy of formatted numbers. See how thousand separators, decimal marks, and symbol positions differ across locales.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive" id="exhibit-format">
+            <div class="format-container">
+              <div class="format-input-row">
+                <label>Value:</label>
+                <input type="number" class="input input-mono format-input" id="format-value" value="1234567.89">
+                <label>Format:</label>
+                <select class="input" id="format-type">
+                  <option value="currency" selected>Currency (USD)</option>
+                  <option value="decimal">Decimal</option>
+                  <option value="percent">Percent</option>
+                  <option value="compact">Compact</option>
+                </select>
+              </div>
+
+              <div class="format-anatomy" id="format-anatomy"></div>
+
+              <div class="format-comparison" id="format-comparison">
+                <div class="format-comparison-title" id="format-comparison-title">Thousand Separator Comparison</div>
+                <div class="format-comparison-grid" id="format-comparison-grid"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="exhibit-controls">
+            <button class="btn btn-secondary btn-small format-part-btn" data-part="thousand" data-active="true">Thousand Sep</button>
+            <button class="btn btn-secondary btn-small format-part-btn" data-part="decimal">Decimal Sep</button>
+            <button class="btn btn-secondary btn-small format-part-btn" data-part="symbol">Symbol Position</button>
+            <button class="btn btn-secondary btn-small format-part-btn" data-part="digits">Digit Grouping</button>
+          </div>
+
+          <div class="exhibit-state">
+            <div class="exhibit-state-title">Format Call</div>
+            <div id="format-state" class="font-mono">i18n.formatNumber(1234567.89, { style: 'currency', currency: 'USD' })</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Exhibit 4: Translation Tree Walker -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Translation Tree Walker</h2>
+          <p class="exhibit-description">Visualize how dot-notation keys traverse the translation structure. See exactly where lookups succeed or fail.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive" id="exhibit-tree">
+            <div class="tree-container">
+              <div class="tree-input-row">
+                <input type="text" class="input input-mono tree-key-input" id="tree-key" value="common.buttons.save" placeholder="Enter a key...">
+                <button class="btn btn-primary" id="tree-lookup">Look Up</button>
+              </div>
+
+              <div class="tree-visualization" id="tree-viz"></div>
+
+              <div class="tree-path" id="tree-path"></div>
+
+              <div class="tree-result" id="tree-result">
+                <div>
+                  <div class="tree-result-label">Result</div>
+                  <div class="tree-result-value success" id="tree-result-value">"Save"</div>
+                </div>
+                <div class="tree-suggestions">
+                  <span class="text-muted" style="font-size: var(--font-size-xs);">Try:</span>
+                  <button class="btn btn-secondary btn-small tree-suggestion" data-key="common.buttons.nope">common.buttons.nope</button>
+                  <button class="btn btn-secondary btn-small tree-suggestion" data-key="messages.greeting">messages.greeting</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="exhibit-state">
+            <div class="exhibit-state-title">Lookup Path</div>
+            <div id="tree-state" class="font-mono">translations["en"] -> common -> buttons -> save -> "Save"</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="test-runner">
+      <div class="test-runner-header">
+        <h2 class="test-runner-title">Test Suite</h2>
+        <div class="test-runner-actions">
+          <button class="btn btn-primary" id="run-tests">Run Tests</button>
+          <button class="btn btn-secondary" id="run-fuzz">Run Fuzz Tests</button>
+          <button class="btn btn-secondary" id="reset-page">Reset Page</button>
+        </div>
+      </div>
+      <div class="test-runner-content">
+        <div class="test-progress">
+          <div class="test-progress-bar">
+            <div class="test-progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="test-progress-text" id="progress-text">Ready to run tests</div>
+        </div>
+        <div class="test-output" id="test-output">
+          <div class="test-output-empty">Click "Run Tests" to execute the test suite</div>
+        </div>
+        <div class="test-summary hidden" id="test-summary">
+          <div class="test-summary-item passed">
+            <span>&#10003;</span>
+            <span id="passed-count">0</span> passed
+          </div>
+          <div class="test-summary-item failed">
+            <span>&#10007;</span>
+            <span id="failed-count">0</span> failed
+          </div>
+          <div class="test-summary-item skipped">
+            <span>&#9675;</span>
+            <span id="skipped-count">0</span> skipped
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+// ============================================
+// INLINE I18N LIBRARY
+// ============================================
+
+class I18nError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'I18nError'
+  }
+}
+
+function createI18n(options) {
+  if (options === undefined || options === null) {
+    throw new TypeError('options is required')
+  }
+  if (typeof options !== 'object' || Array.isArray(options)) {
+    throw new TypeError('options must be an object')
+  }
+  if (!('defaultLocale' in options)) {
+    throw new TypeError('defaultLocale is required')
+  }
+  if (typeof options.defaultLocale !== 'string') {
+    throw new TypeError('defaultLocale must be a string')
+  }
+  if (options.defaultLocale.trim() === '') {
+    throw new TypeError('defaultLocale cannot be empty')
+  }
+  if (options.translations !== undefined) {
+    if (typeof options.translations !== 'object' || Array.isArray(options.translations)) {
+      throw new TypeError('translations must be an object')
     }
+  }
+  if (options.loadPath !== undefined && typeof options.loadPath !== 'function') {
+    throw new TypeError('loadPath must be a function')
+  }
 
-    function createI18n(i) {
-      if (i == null)
-        throw new TypeError("options is required");
-      if (typeof i != "object" || Array.isArray(i))
-        throw new TypeError("options must be an object");
-      if (!("defaultLocale" in i))
-        throw new TypeError("defaultLocale is required");
-      if (typeof i.defaultLocale != "string")
-        throw new TypeError("defaultLocale must be a string");
-      if (i.defaultLocale.trim() === "")
-        throw new TypeError("defaultLocale cannot be empty");
-      if (i.translations !== void 0 && (typeof i.translations != "object" || Array.isArray(i.translations)))
-        throw new TypeError("translations must be an object");
-      if (i.loadPath !== void 0 && typeof i.loadPath != "function")
-        throw new TypeError("loadPath must be a function");
-      const l = new Map();
-      let u = i.defaultLocale;
-      const p = i.fallbackLocale, g = i.loadPath, j = new Set(), d = new Set();
-      let T = "key";
-      const h = new Map(), m = new Set();
-      if (i.translations)
-        for (const [e, r] of Object.entries(i.translations))
-          l.set(e, b(r));
-      function b(e) {
-        const r = Object.create(null);
-        for (const t of Object.keys(e))
-          if (Object.prototype.hasOwnProperty.call(e, t)) {
-            const o = e[t];
-            if (o === void 0) continue;
-            o && typeof o == "object" && !Array.isArray(o) ? r[t] = b(o) : r[t] = o;
-          }
-        return Object.prototype.hasOwnProperty.call(e, "__proto__") && Object.defineProperty(r, "__proto__", {
-          value: e.__proto__,
-          enumerable: !0,
-          writable: !0,
-          configurable: !0
-        }), r;
-      }
-      function E(e, r) {
-        const t = Object.create(null);
-        for (const o of Object.keys(e))
-          if (Object.prototype.hasOwnProperty.call(e, o)) {
-            const n = e[o];
-            n !== void 0 && (t[o] = n);
-          }
-        Object.prototype.hasOwnProperty.call(e, "__proto__") && Object.defineProperty(t, "__proto__", {
-          value: e.__proto__,
-          enumerable: !0,
-          writable: !0,
-          configurable: !0
-        });
-        for (const o of Object.keys(r))
-          if (Object.prototype.hasOwnProperty.call(r, o)) {
-            const n = r[o];
-            if (n === void 0) continue;
-            if (n && typeof n == "object" && !Array.isArray(n) && !v(n)) {
-              const s = t[o];
-              s && typeof s == "object" && !Array.isArray(s) ? t[o] = E(s, n) : t[o] = b(n);
-            } else
-              t[o] = n;
-          }
-        return Object.prototype.hasOwnProperty.call(r, "__proto__") && Object.defineProperty(t, "__proto__", {
-          value: r.__proto__,
-          enumerable: !0,
-          writable: !0,
-          configurable: !0
-        }), t;
-      }
-      function v(e) {
-        if (typeof e != "object") return !1;
-        const r = Object.keys(e), t = ["zero", "one", "two", "few", "many", "other"];
-        return r.length > 0 && r.every((o) => t.includes(o));
-      }
-      function _(e, r) {
-        const t = l.get(e);
-        if (!t) return null;
-        const o = r.split(".");
-        let n = t;
-        for (const s of o)
-          if (n && typeof n == "object" && !Array.isArray(n)) {
-            if (v(n))
-              return null;
-            const a = n;
-            if (Object.prototype.hasOwnProperty.call(a, s)) {
-              const c = a[s];
-              if (c === void 0) return null;
-              n = c;
-            } else
-              return null;
-          } else
-            return null;
-        return typeof n == "string" ? n : null;
-      }
-      function L(e, r) {
-        if (!r) return e;
-        let t = e;
-        for (const [o, n] of Object.entries(r)) {
-          const s = new RegExp(`\\{\\{\\s*${o}\\s*\\}\\}`, "g");
-          let a = "";
-          n == null ? a = "" : a = String(n), t = t.replace(s, a);
-        }
-        return t;
-      }
-      function k(e, r) {
-        if (r === 0) return "zero";
-        const t = Math.abs(r);
-        return new Intl.PluralRules(e).select(t);
-      }
-      function O(e, r, t) {
-        const o = l.get(e);
-        if (!o) return null;
-        const n = r.split(".");
-        let s = o;
-        for (const a of n)
-          if (s && typeof s == "object" && !Array.isArray(s)) {
-            const c = s;
-            if (Object.prototype.hasOwnProperty.call(c, a)) {
-              const f = c[a];
-              if (f === void 0) return null;
-              s = f;
-            } else
-              return null;
-          } else
-            return null;
-        if (v(s) && typeof t.count == "number") {
-          const a = s, c = t.count, f = k(e, c);
-          if (f === "zero" && a.zero !== void 0)
-            return a.zero;
-          if (Object.prototype.hasOwnProperty.call(a, f) && a[f] !== void 0) {
-            const w = a[f];
-            if (w !== void 0)
-              return w;
-          }
-          return a.other;
-        }
-        return null;
-      }
-      function M(e, r) {
-        if (typeof e != "string")
-          throw new TypeError("key must be a string");
-        if (r !== void 0 && (typeof r != "object" || Array.isArray(r)))
-          throw new TypeError("params must be an object");
-        const t = e.trim();
-        if (t === "") return "";
-        const o = r && "count" in r && typeof r.count == "number";
-        let n = null;
-        o && (n = O(u, t, r)), n ?? (n = _(u, t));
-        const s = n !== null;
-        if (n === null && p && (o && (n = O(p, t, r)), n ?? (n = _(p, t))), n === null)
-          switch (d.forEach((a) => {
-            try {
-              a(t, u);
-            } catch (c) {
-              console.error("Missing callback error:", c);
-            }
-          }), T) {
-            case "empty":
-              return "";
-            case "throw":
-              throw new I18nError(`Missing translation: ${t}`);
-            case "key":
-            default:
-              return t;
-          }
-        return !s && p && d.forEach((a) => {
-          try {
-            a(t, u);
-          } catch (c) {
-            console.error("Missing callback error:", c);
-          }
-        }), L(n, r);
-      }
-      function P(e) {
-        const r = ((t, o) => {
-          const n = e ? `${e}.${t}` : t;
-          return M(n, o);
-        });
-        return r.namespace = (t) => {
-          if (t != null && typeof t != "string")
-            throw new TypeError("prefix must be a string");
-          const o = t ?? "", n = e ? o ? `${e}.${o}` : e : o;
-          return P(n || void 0);
-        }, r;
-      }
-      const A = P(), y = {
-        t: A,
-        getLocale() {
-          return u;
-        },
-        setLocale(e) {
-          if (typeof e != "string")
-            throw new TypeError("locale must be a string");
-          if (e.trim() === "")
-            throw new TypeError("locale cannot be empty");
-          if (e === u)
-            return y;
-          const r = l.size > 0;
-          if (!l.has(e) && r && !p)
-            throw new Error(`No translations available for locale '${e}'`);
-          const t = u;
-          return u = e, j.forEach((o) => {
-            try {
-              o(e, t);
-            } catch (n) {
-              console.error("Change callback error:", n);
-            }
-          }), y;
-        },
-        async setLocaleAsync(e) {
-          return !m.has(e) && g && await y.loadLocale(e), y.setLocale(e);
-        },
-        getAvailableLocales() {
-          return Array.from(l.keys());
-        },
-        addTranslations(e, r) {
-          if (typeof e != "string")
-            throw new TypeError("locale must be a string");
-          if (e.trim() === "")
-            throw new TypeError("locale cannot be empty");
-          if (typeof r != "object" || Array.isArray(r))
-            throw new TypeError("translations must be an object");
-          const t = l.get(e);
-          return t ? l.set(e, E(t, r)) : (l.set(e, b(r)), m.add(e)), y;
-        },
-        hasKey(e, r) {
-          if (typeof e != "string")
-            throw new TypeError("key must be a string");
-          if (r !== void 0 && typeof r != "string")
-            throw new TypeError("locale must be a string");
-          const t = r ?? u;
-          if (_(t, e) !== null) return !0;
-          const n = l.get(t);
-          if (!n) return !1;
-          const s = e.split(".");
-          let a = n;
-          for (const c of s)
-            if (a && typeof a == "object" && !Array.isArray(a)) {
-              const f = a;
-              if (Object.prototype.hasOwnProperty.call(f, c)) {
-                const w = f[c];
-                if (w === void 0) return !1;
-                a = w;
-              } else
-                return !1;
-            } else
-              return !1;
-          return !0;
-        },
-        getTranslations(e) {
-          const r = e ?? u, t = l.get(r);
-          return t ? b(t) : {};
-        },
-        loadLocale(e, r) {
-          if (!g)
-            throw new Error("loadPath not configured");
-          const t = (r == null ? void 0 : r.forceReload) ?? !1;
-          if (!t && h.has(e)) {
-            const n = h.get(e);
-            if (n)
-              return n;
-          }
-          if (!t && m.has(e))
-            return Promise.resolve();
-          const o = (async () => {
-            try {
-              const n = await g(e);
-              if (typeof n != "object" || Array.isArray(n))
-                throw new TypeError("loadPath must return an object");
-              y.addTranslations(e, n), m.add(e);
-            } finally {
-              h.delete(e);
-            }
-          })();
-          return h.set(e, o), o;
-        },
-        isLocaleLoaded(e) {
-          return l.has(e);
-        },
-        onChange(e) {
-          if (typeof e != "function")
-            throw new TypeError("callback must be a function");
-          return j.add(e), () => {
-            j.delete(e);
-          };
-        },
-        onMissing(e) {
-          if (typeof e != "function")
-            throw new TypeError("callback must be a function");
-          return d.add(e), () => {
-            d.delete(e);
-          };
-        },
-        setMissingBehavior(e) {
-          if (!["key", "empty", "throw"].includes(e))
-            throw new TypeError("behavior must be one of: key, empty, throw");
-          return T = e, y;
-        },
-        namespace(e) {
-          return A.namespace(e);
-        },
-        formatNumber(e, r) {
-          if (typeof e != "number")
-            throw new TypeError("value must be a number");
-          return new Intl.NumberFormat(u, r).format(e);
-        },
-        formatDate(e, r) {
-          let t;
-          if (e instanceof Date)
-            t = e;
-          else if (typeof e == "number")
-            t = new Date(e);
-          else if (typeof e == "string")
-            t = new Date(e);
-          else
-            throw new TypeError("value must be a valid date");
-          if (isNaN(t.getTime()))
-            throw new TypeError("value must be a valid date");
-          return new Intl.DateTimeFormat(u, r).format(t);
-        },
-        formatRelativeTime(e, r) {
-          if (typeof e != "number")
-            throw new TypeError("value must be a number");
-          return new Intl.RelativeTimeFormat(u).format(e, r);
-        }
-      };
-      return y;
-    }
+  const translations = new Map()
+  let currentLocale = options.defaultLocale
+  const fallbackLocale = options.fallbackLocale
+  const loadPath = options.loadPath
+  const changeCallbacks = new Set()
+  const missingCallbacks = new Set()
+  let missingBehavior = 'key'
+  const loadingPromises = new Map()
+  const loadedLocales = new Set()
 
-    // Sample translations
-    const translations = {
-      en: {
-        hello: 'Hello',
-        goodbye: 'Goodbye',
-        greeting: 'Hello, {{name}}!',
-        welcome: 'Welcome, {{name}}! You have {{count}} new messages.',
-        common: {
-          save: 'Save',
-          cancel: 'Cancel',
-          delete: 'Delete'
-        },
-        items: {
-          zero: 'No items',
-          one: '{{count}} item',
-          other: '{{count}} items'
-        },
-        errors: {
-          not_found: '{{item}} not found'
-        }
-      },
-      es: {
-        hello: 'Hola',
-        goodbye: 'Adiós',
-        greeting: '¡Hola, {{name}}!',
-        common: {
-          save: 'Guardar',
-          cancel: 'Cancelar',
-          delete: 'Eliminar'
-        },
-        items: {
-          one: '{{count}} artículo',
-          other: '{{count}} artículos'
-        }
-      },
-      de: {
-        hello: 'Hallo',
-        goodbye: 'Auf Wiedersehen',
-        greeting: 'Hallo, {{name}}!',
-        common: {
-          save: 'Speichern',
-          cancel: 'Abbrechen'
-        }
-      },
-      fr: {
-        hello: 'Bonjour',
-        goodbye: 'Au revoir',
-        greeting: 'Bonjour, {{name}}!',
-        common: {
-          save: 'Enregistrer'
+  const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
+  function deepClone(obj) {
+    const result = Object.create(null)
+    for (const key of Object.keys(obj)) {
+      if (FORBIDDEN_KEYS.has(key)) continue
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = obj[key]
+        if (value === undefined) continue
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          result[key] = deepClone(value)
+        } else {
+          result[key] = value
         }
       }
     }
+    return result
+  }
 
-    // Create main i18n instance
-    let i18n = createI18n({
-      defaultLocale: 'en',
-      fallbackLocale: 'en',
-      translations
+  function deepMerge(target, source) {
+    const result = Object.create(null)
+    for (const key of Object.keys(target)) {
+      if (FORBIDDEN_KEYS.has(key)) continue
+      if (Object.prototype.hasOwnProperty.call(target, key)) {
+        const value = target[key]
+        if (value !== undefined) result[key] = value
+      }
+    }
+    for (const key of Object.keys(source)) {
+      if (FORBIDDEN_KEYS.has(key)) continue
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        const value = source[key]
+        if (value === undefined) continue
+        if (value && typeof value === 'object' && !Array.isArray(value) && !isPluralTranslations(value)) {
+          const existing = result[key]
+          if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+            result[key] = deepMerge(existing, value)
+          } else {
+            result[key] = deepClone(value)
+          }
+        } else {
+          result[key] = value
+        }
+      }
+    }
+    return result
+  }
+
+  function isPluralTranslations(obj) {
+    if (typeof obj !== 'object') return false
+    const keys = Object.keys(obj)
+    const pluralKeys = ['zero', 'one', 'two', 'few', 'many', 'other']
+    return keys.length > 0 && keys.every(k => pluralKeys.includes(k))
+  }
+
+  function lookupKey(locale, key) {
+    const trans = translations.get(locale)
+    if (!trans) return null
+    const parts = key.split('.')
+    let current = trans
+    for (const part of parts) {
+      if (current && typeof current === 'object' && !Array.isArray(current)) {
+        if (isPluralTranslations(current)) return null
+        if (Object.prototype.hasOwnProperty.call(current, part)) {
+          const nextValue = current[part]
+          if (nextValue === undefined) return null
+          current = nextValue
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    }
+    return typeof current === 'string' ? current : null
+  }
+
+  function interpolate(template, params) {
+    if (!params) return template
+    let result = template
+    for (const [key, value] of Object.entries(params)) {
+      const placeholder = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g')
+      let replacement = ''
+      if (value === null || value === undefined) {
+        replacement = ''
+      } else {
+        replacement = String(value)
+      }
+      result = result.replace(placeholder, replacement)
+    }
+    return result
+  }
+
+  function getPluralForm(locale, count) {
+    if (count === 0) return 'zero'
+    const absCount = Math.abs(count)
+    const rules = new Intl.PluralRules(locale)
+    return rules.select(absCount)
+  }
+
+  function handlePluralization(locale, key, params) {
+    const trans = translations.get(locale)
+    if (!trans) return null
+    const parts = key.split('.')
+    let current = trans
+    for (const part of parts) {
+      if (current && typeof current === 'object' && !Array.isArray(current)) {
+        if (Object.prototype.hasOwnProperty.call(current, part)) {
+          const nextValue = current[part]
+          if (nextValue === undefined) return null
+          current = nextValue
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    }
+    if (isPluralTranslations(current) && typeof params.count === 'number') {
+      const plural = current
+      const count = params.count
+      const form = getPluralForm(locale, count)
+      if (form === 'zero' && plural.zero !== undefined) return plural.zero
+      if (plural[form] !== undefined) return plural[form]
+      return plural.other
+    }
+    return null
+  }
+
+  function translate(key, params) {
+    if (typeof key !== 'string') throw new TypeError('key must be a string')
+    if (params !== undefined) {
+      if (typeof params !== 'object' || Array.isArray(params)) {
+        throw new TypeError('params must be an object')
+      }
+    }
+    const trimmedKey = key.trim()
+    if (trimmedKey === '') return ''
+    const hasCount = params && 'count' in params && typeof params.count === 'number'
+    let result = null
+    if (hasCount) result = handlePluralization(currentLocale, trimmedKey, params)
+    if (result === null) result = lookupKey(currentLocale, trimmedKey)
+    const foundInCurrentLocale = result !== null
+    if (result === null && fallbackLocale) {
+      if (hasCount) result = handlePluralization(fallbackLocale, trimmedKey, params)
+      if (result === null) result = lookupKey(fallbackLocale, trimmedKey)
+    }
+    if (result === null) {
+      missingCallbacks.forEach(cb => { try { cb(trimmedKey, currentLocale) } catch(e) {} })
+      switch (missingBehavior) {
+        case 'empty': return ''
+        case 'throw': throw new I18nError(`Missing translation: ${trimmedKey}`)
+        default: return trimmedKey
+      }
+    }
+    if (!foundInCurrentLocale && fallbackLocale) {
+      missingCallbacks.forEach(cb => { try { cb(trimmedKey, currentLocale) } catch(e) {} })
+    }
+    return interpolate(result, params)
+  }
+
+  function createTranslateFunction(prefix) {
+    const fn = (key, params) => {
+      const fullKey = prefix ? `${prefix}.${key}` : key
+      return translate(fullKey, params)
+    }
+    fn.namespace = (newPrefix) => {
+      if (newPrefix !== undefined && newPrefix !== null && typeof newPrefix !== 'string') {
+        throw new TypeError('prefix must be a string')
+      }
+      const normalizedPrefix = newPrefix ?? ''
+      const combinedPrefix = prefix
+        ? (normalizedPrefix ? `${prefix}.${normalizedPrefix}` : prefix)
+        : normalizedPrefix
+      return createTranslateFunction(combinedPrefix || undefined)
+    }
+    return fn
+  }
+
+  const t = createTranslateFunction()
+
+  if (options.translations) {
+    for (const [locale, trans] of Object.entries(options.translations)) {
+      translations.set(locale, deepClone(trans))
+    }
+  }
+
+  const i18n = {
+    t,
+    getLocale() { return currentLocale },
+    setLocale(locale) {
+      if (typeof locale !== 'string') throw new TypeError('locale must be a string')
+      if (locale.trim() === '') throw new TypeError('locale cannot be empty')
+      if (locale === currentLocale) return i18n
+      const hasSomeTranslations = translations.size > 0
+      if (!translations.has(locale) && hasSomeTranslations && !fallbackLocale) {
+        throw new Error(`No translations available for locale '${locale}'`)
+      }
+      const prevLocale = currentLocale
+      currentLocale = locale
+      changeCallbacks.forEach(cb => { try { cb(locale, prevLocale) } catch(e) {} })
+      return i18n
+    },
+    async setLocaleAsync(locale) {
+      if (!loadedLocales.has(locale) && loadPath) await i18n.loadLocale(locale)
+      return i18n.setLocale(locale)
+    },
+    getAvailableLocales() { return Array.from(translations.keys()) },
+    addTranslations(locale, trans) {
+      if (typeof locale !== 'string') throw new TypeError('locale must be a string')
+      if (locale.trim() === '') throw new TypeError('locale cannot be empty')
+      if (typeof trans !== 'object' || Array.isArray(trans)) throw new TypeError('translations must be an object')
+      const existing = translations.get(locale)
+      if (existing) {
+        translations.set(locale, deepMerge(existing, trans))
+      } else {
+        translations.set(locale, deepClone(trans))
+        loadedLocales.add(locale)
+      }
+      return i18n
+    },
+    hasKey(key, locale) {
+      if (typeof key !== 'string') throw new TypeError('key must be a string')
+      if (locale !== undefined && typeof locale !== 'string') throw new TypeError('locale must be a string')
+      const targetLocale = locale ?? currentLocale
+      if (lookupKey(targetLocale, key) !== null) return true
+      const trans = translations.get(targetLocale)
+      if (!trans) return false
+      const parts = key.split('.')
+      let current = trans
+      for (const part of parts) {
+        if (current && typeof current === 'object' && !Array.isArray(current)) {
+          if (Object.prototype.hasOwnProperty.call(current, part)) {
+            const nextValue = current[part]
+            if (nextValue === undefined) return false
+            current = nextValue
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      }
+      return true
+    },
+    getTranslations(locale) {
+      const targetLocale = locale ?? currentLocale
+      const trans = translations.get(targetLocale)
+      return trans ? deepClone(trans) : {}
+    },
+    loadLocale(locale, options) {
+      if (!loadPath) throw new Error('loadPath not configured')
+      const forceReload = options?.forceReload ?? false
+      if (!forceReload && loadingPromises.has(locale)) return loadingPromises.get(locale)
+      if (!forceReload && loadedLocales.has(locale)) return Promise.resolve()
+      const promise = (async () => {
+        try {
+          const data = await loadPath(locale)
+          if (typeof data !== 'object' || Array.isArray(data)) throw new TypeError('loadPath must return an object')
+          i18n.addTranslations(locale, data)
+          loadedLocales.add(locale)
+        } finally {
+          loadingPromises.delete(locale)
+        }
+      })()
+      loadingPromises.set(locale, promise)
+      return promise
+    },
+    isLocaleLoaded(locale) { return translations.has(locale) },
+    onChange(callback) {
+      if (typeof callback !== 'function') throw new TypeError('callback must be a function')
+      changeCallbacks.add(callback)
+      return () => changeCallbacks.delete(callback)
+    },
+    onMissing(callback) {
+      if (typeof callback !== 'function') throw new TypeError('callback must be a function')
+      missingCallbacks.add(callback)
+      return () => missingCallbacks.delete(callback)
+    },
+    setMissingBehavior(behavior) {
+      if (!['key', 'empty', 'throw'].includes(behavior)) throw new TypeError('behavior must be one of: key, empty, throw')
+      missingBehavior = behavior
+      return i18n
+    },
+    namespace(prefix) { return t.namespace(prefix) },
+    formatNumber(value, options) {
+      if (typeof value !== 'number') throw new TypeError('value must be a number')
+      return new Intl.NumberFormat(currentLocale, options).format(value)
+    },
+    formatDate(value, options) {
+      let date
+      if (value instanceof Date) date = value
+      else if (typeof value === 'number') date = new Date(value)
+      else if (typeof value === 'string') date = new Date(value)
+      else throw new TypeError('value must be a valid date')
+      if (isNaN(date.getTime())) throw new TypeError('value must be a valid date')
+      return new Intl.DateTimeFormat(currentLocale, options).format(date)
+    },
+    formatRelativeTime(value, unit) {
+      if (typeof value !== 'number') throw new TypeError('value must be a number')
+      return new Intl.RelativeTimeFormat(currentLocale).format(value, unit)
+    }
+  }
+
+  return i18n
+}
+
+// ============================================
+// DEMO DATA
+// ============================================
+
+const demoTranslations = {
+  en: {
+    common: {
+      buttons: { save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit' },
+      labels: { name: 'Name', email: 'Email', password: 'Password' }
+    },
+    messages: {
+      greeting: 'Hello, {{name}}! You have {{count}} new messages from {{sender}}.',
+      items: { zero: 'No items', one: '{{count}} item', other: '{{count}} items' },
+      notification: 'You have {{count}} new {{type}}'
+    },
+    errors: {
+      required: '{{field}} is required',
+      invalid: 'Invalid {{field}}'
+    }
+  },
+  ru: {
+    common: {
+      buttons: { save: 'Сохранить', cancel: 'Отмена', delete: 'Удалить', edit: 'Редактировать' },
+      labels: { name: 'Имя', email: 'Электронная почта', password: 'Пароль' }
+    },
+    messages: {
+      greeting: 'Привет, {{name}}! У вас {{count}} новых сообщений от {{sender}}.',
+      items: {
+        zero: 'Нет предметов',
+        one: '{{count}} предмет',
+        few: '{{count}} предмета',
+        many: '{{count}} предметов',
+        other: '{{count}} предмета'
+      }
+    }
+  },
+  ar: {
+    messages: {
+      items: {
+        zero: 'لا عناصر',
+        one: 'عنصر واحد',
+        two: 'عنصران',
+        few: '{{count}} عناصر',
+        many: '{{count}} عنصرًا',
+        other: '{{count}} عنصر'
+      }
+    }
+  },
+  de: {
+    messages: {
+      items: { one: '{{count}} Artikel', other: '{{count}} Artikel' }
+    }
+  },
+  pl: {
+    messages: {
+      items: {
+        one: '{{count}} element',
+        few: '{{count}} elementy',
+        many: '{{count}} elementów',
+        other: '{{count}} elementu'
+      }
+    }
+  }
+}
+
+// Create i18n instances for demo
+const i18nEn = createI18n({ defaultLocale: 'en', translations: demoTranslations })
+const i18nRu = createI18n({ defaultLocale: 'ru', translations: demoTranslations })
+
+// ============================================
+// EXHIBIT 1: PLURAL RULE VISUALIZER
+// ============================================
+
+const pluralForms = {
+  en: { one: '{{count}} item', other: '{{count}} items' },
+  ru: { one: '{{count}} предмет', few: '{{count}} предмета', many: '{{count}} предметов', other: '{{count}} предмета' },
+  ar: { zero: 'لا عناصر', one: 'عنصر واحد', two: 'عنصران', few: '{{count}} عناصر', many: '{{count}} عنصرًا', other: '{{count}} عنصر' },
+  de: { one: '{{count}} Artikel', other: '{{count}} Artikel' },
+  pl: { one: '{{count}} element', few: '{{count}} elementy', many: '{{count}} elementów', other: '{{count}} elementu' }
+}
+
+const localePairs = {
+  'en-ru': ['en', 'ru'],
+  'en-ar': ['en', 'ar'],
+  'de-pl': ['de', 'pl']
+}
+
+let currentLocalePair = ['en', 'ru']
+
+function updatePluralDisplay(count) {
+  const [locale1, locale2] = currentLocalePair
+
+  // Update count display
+  document.getElementById('plural-count').textContent = count
+
+  // Get plural forms
+  const rules1 = new Intl.PluralRules(locale1)
+  const rules2 = new Intl.PluralRules(locale2)
+  const form1 = count === 0 && pluralForms[locale1].zero ? 'zero' : rules1.select(count)
+  const form2 = count === 0 && pluralForms[locale2].zero ? 'zero' : rules2.select(count)
+
+  // Render forms for locale 1
+  const formsContainer1 = document.getElementById('plural-forms-en')
+  formsContainer1.innerHTML = ''
+  for (const [form, template] of Object.entries(pluralForms[locale1])) {
+    const row = document.createElement('div')
+    row.className = `plural-form-row ${form === form1 ? 'active' : ''}`
+    row.innerHTML = `
+      <span class="plural-form-name">${form}</span>
+      <span class="plural-form-value">${template}</span>
+    `
+    formsContainer1.appendChild(row)
+  }
+
+  // Render forms for locale 2
+  const formsContainer2 = document.getElementById('plural-forms-ru')
+  formsContainer2.innerHTML = ''
+  for (const [form, template] of Object.entries(pluralForms[locale2])) {
+    const row = document.createElement('div')
+    row.className = `plural-form-row ${form === form2 ? 'active' : ''}`
+    row.innerHTML = `
+      <span class="plural-form-name">${form}</span>
+      <span class="plural-form-value">${template}</span>
+    `
+    formsContainer2.appendChild(row)
+  }
+
+  // Update API calls
+  document.getElementById('plural-api-en').textContent = `Intl.PluralRules('${locale1}').select(${count}) → "${form1}"`
+  document.getElementById('plural-api-ru').textContent = `Intl.PluralRules('${locale2}').select(${count}) → "${form2}"`
+
+  // Update results
+  const template1 = pluralForms[locale1][form1] || pluralForms[locale1].other
+  const template2 = pluralForms[locale2][form2] || pluralForms[locale2].other
+  document.getElementById('plural-result-en').textContent = `"${template1.replace('{{count}}', count)}"`
+  document.getElementById('plural-result-ru').textContent = `"${template2.replace('{{count}}', count)}"`
+
+  // Update state
+  document.getElementById('plural-state').textContent = `new Intl.PluralRules('${locale1}').select(${count}) // "${form1}"`
+
+  // Update locale headers
+  const localeNames = { en: 'English', ru: 'Russian', ar: 'Arabic', de: 'German', pl: 'Polish' }
+  document.querySelector('#plural-locale-1 .plural-locale-name').textContent = `${localeNames[locale1]} (${locale1})`
+  document.querySelector('#plural-locale-2 .plural-locale-name').textContent = `${localeNames[locale2]} (${locale2})`
+
+  const formCounts = { en: 2, ru: 4, ar: 6, de: 2, pl: 4 }
+  document.querySelector('#plural-locale-1 .tag').textContent = `${formCounts[locale1]} forms`
+  document.querySelector('#plural-locale-2 .tag').textContent = `${formCounts[locale2]} forms`
+}
+
+// Plural slider
+document.getElementById('plural-slider').addEventListener('input', (e) => {
+  updatePluralDisplay(parseInt(e.target.value, 10))
+})
+
+// Locale pair buttons
+document.querySelectorAll('[data-locale-pair]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-locale-pair]').forEach(b => b.removeAttribute('data-active'))
+    btn.setAttribute('data-active', 'true')
+    currentLocalePair = localePairs[btn.dataset.localePair]
+    updatePluralDisplay(parseInt(document.getElementById('plural-slider').value, 10))
+  })
+})
+
+// Initialize
+updatePluralDisplay(21)
+
+// ============================================
+// EXHIBIT 2: INTERPOLATION MACHINE
+// ============================================
+
+const interpTemplate = 'Hello, {{name}}! You have {{count}} new messages from {{sender}}.'
+const interpParams = { name: 'Alice', count: '3', sender: 'Bob' }
+
+function renderInterpolation() {
+  // Render template with highlighted placeholders
+  const templateEl = document.getElementById('interp-template')
+  let templateHtml = interpTemplate.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    return `<span class="interp-placeholder" data-param="${key}">${match}</span>`
+  })
+  templateEl.innerHTML = templateHtml
+
+  // Render parameter inputs
+  const paramsEl = document.getElementById('interp-params')
+  paramsEl.innerHTML = ''
+  const placeholders = interpTemplate.match(/\{\{(\w+)\}\}/g) || []
+  const paramNames = [...new Set(placeholders.map(p => p.replace(/[{}]/g, '').trim()))]
+
+  paramNames.forEach(param => {
+    const div = document.createElement('div')
+    div.className = 'interp-param'
+    div.innerHTML = `
+      <span class="interp-param-name">${param}:</span>
+      <input type="text" class="input input-mono interp-param-input" data-param="${param}" value="${interpParams[param] || ''}">
+    `
+    paramsEl.appendChild(div)
+  })
+
+  // Update output
+  updateInterpOutput()
+
+  // Add input listeners
+  document.querySelectorAll('.interp-param-input').forEach(input => {
+    input.addEventListener('input', (e) => {
+      interpParams[e.target.dataset.param] = e.target.value
+      updateInterpOutput()
+    })
+  })
+}
+
+function updateInterpOutput() {
+  let output = interpTemplate
+  const outputEl = document.getElementById('interp-output')
+
+  for (const [key, value] of Object.entries(interpParams)) {
+    if (value) {
+      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g')
+      output = output.replace(regex, `<span class="substituted">${value}</span>`)
+    }
+  }
+
+  outputEl.innerHTML = output
+
+  // Update state
+  const paramsStr = Object.entries(interpParams)
+    .filter(([k,v]) => v)
+    .map(([k,v]) => `${k}: '${v}'`)
+    .join(', ')
+  document.getElementById('interp-state').textContent = `i18n.t('greeting', { ${paramsStr} })`
+}
+
+async function animateSubstitution() {
+  const placeholders = document.querySelectorAll('.interp-placeholder')
+
+  for (const placeholder of placeholders) {
+    const param = placeholder.dataset.param
+    const value = interpParams[param]
+
+    if (!value) continue
+
+    // Highlight placeholder
+    placeholder.classList.add('highlight')
+    await sleep(300)
+
+    // Highlight input
+    const input = document.querySelector(`.interp-param-input[data-param="${param}"]`)
+    if (input) {
+      input.style.background = 'var(--accent-blue)'
+      input.style.color = 'white'
+    }
+    await sleep(300)
+
+    // Reset highlights
+    placeholder.classList.remove('highlight')
+    if (input) {
+      input.style.background = ''
+      input.style.color = ''
+    }
+    await sleep(200)
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+document.getElementById('interp-animate').addEventListener('click', animateSubstitution)
+document.getElementById('interp-reset').addEventListener('click', () => {
+  interpParams.name = 'Alice'
+  interpParams.count = '3'
+  interpParams.sender = 'Bob'
+  renderInterpolation()
+})
+
+renderInterpolation()
+
+// ============================================
+// EXHIBIT 3: FORMAT DISSECTOR
+// ============================================
+
+const formatLocales = ['en-US', 'de-DE', 'fr-FR', 'hi-IN']
+let currentFormatPart = 'thousand'
+
+function getFormatParts(value, locale, options) {
+  const formatter = new Intl.NumberFormat(locale, options)
+  return formatter.formatToParts(value)
+}
+
+function renderFormatAnatomy() {
+  const value = parseFloat(document.getElementById('format-value').value) || 1234567.89
+  const formatType = document.getElementById('format-type').value
+
+  let options = {}
+  switch (formatType) {
+    case 'currency':
+      options = { style: 'currency', currency: 'USD' }
+      break
+    case 'percent':
+      options = { style: 'percent' }
+      break
+    case 'compact':
+      options = { notation: 'compact' }
+      break
+    default:
+      options = { style: 'decimal' }
+  }
+
+  const anatomyEl = document.getElementById('format-anatomy')
+  anatomyEl.innerHTML = ''
+
+  // Render for two locales
+  const showLocales = ['en-US', 'de-DE']
+  showLocales.forEach(locale => {
+    const parts = getFormatParts(value, locale, options)
+
+    const localeDiv = document.createElement('div')
+    localeDiv.className = 'format-locale-display'
+
+    const localeNames = { 'en-US': 'English (US)', 'de-DE': 'German', 'fr-FR': 'French', 'hi-IN': 'Hindi' }
+    localeDiv.innerHTML = `<div class="format-locale-name">${localeNames[locale]}</div>`
+
+    const dissectedDiv = document.createElement('div')
+    dissectedDiv.className = 'format-dissected'
+
+    parts.forEach(part => {
+      const partEl = document.createElement('span')
+      partEl.className = 'format-part'
+      partEl.dataset.type = part.type
+      partEl.textContent = part.value
+
+      const labelEl = document.createElement('span')
+      labelEl.className = 'format-part-label'
+      labelEl.textContent = part.type
+      partEl.appendChild(labelEl)
+
+      // Highlight based on current selection
+      if (
+        (currentFormatPart === 'thousand' && part.type === 'group') ||
+        (currentFormatPart === 'decimal' && part.type === 'decimal') ||
+        (currentFormatPart === 'symbol' && part.type === 'currency') ||
+        (currentFormatPart === 'digits' && part.type === 'integer')
+      ) {
+        partEl.classList.add('highlight')
+      }
+
+      dissectedDiv.appendChild(partEl)
     })
 
-    // For namespace testing
-    let namespacedT = null
+    localeDiv.appendChild(dissectedDiv)
+    anatomyEl.appendChild(localeDiv)
+  })
 
-    // Test definitions
-    const tests = [
-      {
-        name: 'Create instance with default locale',
-        fn: async () => {
-          const instance = createI18n({ defaultLocale: 'en' })
-          if (!instance) throw new Error('Instance is undefined')
-          if (instance.getLocale() !== 'en') throw new Error('Default locale not set')
-        }
-      },
-      {
-        name: 'Create instance with translations',
-        fn: async () => {
-          const instance = createI18n({
-            defaultLocale: 'en',
-            translations: { en: { test: 'Test' } }
-          })
-          if (instance.t('test') !== 'Test') throw new Error('Translation not loaded')
-        }
-      },
-      {
-        name: 'Create instance with fallback locale',
-        fn: async () => {
-          const instance = createI18n({
-            defaultLocale: 'es',
-            fallbackLocale: 'en',
-            translations: { en: { hello: 'Hello' }, es: {} }
-          })
-          if (instance.t('hello') !== 'Hello') throw new Error('Fallback not working')
-        }
-      },
-      {
-        name: 'Throws TypeError for null options',
-        fn: async () => {
-          try {
-            createI18n(null)
-            throw new Error('Should have thrown TypeError')
-          } catch (e) {
-            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
-            if (!e.message.includes('options is required')) throw new Error('Wrong error message')
-          }
-        }
-      },
-      {
-        name: 'Throws TypeError for missing defaultLocale',
-        fn: async () => {
-          try {
-            createI18n({})
-            throw new Error('Should have thrown TypeError')
-          } catch (e) {
-            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
-            if (!e.message.includes('defaultLocale is required')) throw new Error('Wrong error message')
-          }
-        }
-      },
-      {
-        name: 'Basic translation - simple key',
-        fn: async () => {
-          const result = i18n.t('hello')
-          if (result !== 'Hello') throw new Error(`Expected 'Hello', got '${result}'`)
-        }
-      },
-      {
-        name: 'Basic translation - nested key',
-        fn: async () => {
-          const result = i18n.t('common.save')
-          if (result !== 'Save') throw new Error(`Expected 'Save', got '${result}'`)
-        }
-      },
-      {
-        name: 'Returns key for missing translation',
-        fn: async () => {
-          const result = i18n.t('missing.key')
-          if (result !== 'missing.key') throw new Error('Should return key for missing translation')
-        }
-      },
-      {
-        name: 'Interpolation - single placeholder',
-        fn: async () => {
-          const result = i18n.t('greeting', { name: 'Alice' })
-          if (result !== 'Hello, Alice!') throw new Error(`Expected 'Hello, Alice!', got '${result}'`)
-        }
-      },
-      {
-        name: 'Interpolation - multiple placeholders',
-        fn: async () => {
-          const result = i18n.t('welcome', { name: 'Bob', count: 5 })
-          if (result !== 'Welcome, Bob! You have 5 new messages.') {
-            throw new Error(`Unexpected result: ${result}`)
-          }
-        }
-      },
-      {
-        name: 'Interpolation - number to string',
-        fn: async () => {
-          const result = i18n.t('welcome', { name: 'Test', count: 42 })
-          if (!result.includes('42')) throw new Error('Number not converted to string')
-        }
-      },
-      {
-        name: 'Interpolation - missing param leaves placeholder',
-        fn: async () => {
-          const result = i18n.t('greeting', {})
-          if (result !== 'Hello, {{name}}!') throw new Error('Should leave placeholder intact')
-        }
-      },
-      {
-        name: 'Pluralization - zero with zero form',
-        fn: async () => {
-          const result = i18n.t('items', { count: 0 })
-          if (result !== 'No items') throw new Error(`Expected 'No items', got '${result}'`)
-        }
-      },
-      {
-        name: 'Pluralization - one form',
-        fn: async () => {
-          const result = i18n.t('items', { count: 1 })
-          if (result !== '1 item') throw new Error(`Expected '1 item', got '${result}'`)
-        }
-      },
-      {
-        name: 'Pluralization - other form',
-        fn: async () => {
-          const result = i18n.t('items', { count: 5 })
-          if (result !== '5 items') throw new Error(`Expected '5 items', got '${result}'`)
-        }
-      },
-      {
-        name: 'Pluralization - negative count',
-        fn: async () => {
-          const result = i18n.t('items', { count: -1 })
-          if (result !== '-1 item') throw new Error('Negative count not handled correctly')
-        }
-      },
-      {
-        name: 'Locale switching - getLocale',
-        fn: async () => {
-          const initial = i18n.getLocale()
-          if (initial !== 'en') throw new Error('Initial locale incorrect')
-        }
-      },
-      {
-        name: 'Locale switching - setLocale',
-        fn: async () => {
-          i18n.setLocale('es')
-          if (i18n.getLocale() !== 'es') throw new Error('Locale not changed')
-          const result = i18n.t('hello')
-          if (result !== 'Hola') throw new Error('Translation not in new locale')
-          i18n.setLocale('en') // Reset
-        }
-      },
-      {
-        name: 'Fallback chain works',
-        fn: async () => {
-          i18n.setLocale('de')
-          const result = i18n.t('common.delete') // Not in German
-          if (result !== 'Delete') throw new Error('Fallback not used')
-          i18n.setLocale('en') // Reset
-        }
-      },
-      {
-        name: 'getAvailableLocales returns all locales',
-        fn: async () => {
-          const locales = i18n.getAvailableLocales()
-          if (!Array.isArray(locales)) throw new Error('Should return array')
-          if (!locales.includes('en')) throw new Error('Missing en locale')
-          if (!locales.includes('es')) throw new Error('Missing es locale')
-        }
-      },
-      {
-        name: 'addTranslations adds new locale',
-        fn: async () => {
-          i18n.addTranslations('it', { hello: 'Ciao' })
-          const locales = i18n.getAvailableLocales()
-          if (!locales.includes('it')) throw new Error('Locale not added')
-        }
-      },
-      {
-        name: 'addTranslations merges with existing',
-        fn: async () => {
-          const before = i18n.t('hello')
-          i18n.addTranslations('en', { newkey: 'New Value' })
-          const after = i18n.t('hello')
-          const newVal = i18n.t('newkey')
-          if (before !== after) throw new Error('Existing translations overwritten')
-          if (newVal !== 'New Value') throw new Error('New translations not added')
-        }
-      },
-      {
-        name: 'hasKey returns true for existing key',
-        fn: async () => {
-          if (!i18n.hasKey('hello')) throw new Error('Should find existing key')
-        }
-      },
-      {
-        name: 'hasKey returns false for missing key',
-        fn: async () => {
-          if (i18n.hasKey('nonexistent')) throw new Error('Should not find missing key')
-        }
-      },
-      {
-        name: 'hasKey works with nested keys',
-        fn: async () => {
-          if (!i18n.hasKey('common.save')) throw new Error('Should find nested key')
-        }
-      },
-      {
-        name: 'getTranslations returns translation object',
-        fn: async () => {
-          const trans = i18n.getTranslations('en')
-          if (!trans.hello) throw new Error('Missing translation data')
-          if (trans.hello !== 'Hello') throw new Error('Wrong translation value')
-        }
-      },
-      {
-        name: 'getTranslations returns copy (immutable)',
-        fn: async () => {
-          const trans = i18n.getTranslations('en')
-          trans.hello = 'Modified'
-          const original = i18n.t('hello')
-          if (original === 'Modified') throw new Error('Original was mutated')
-        }
-      },
-      {
-        name: 'onChange callback fires on locale change',
-        fn: async () => {
-          let fired = false
-          let newLoc = null
-          let oldLoc = null
-          const unsub = i18n.onChange((newLocale, oldLocale) => {
-            fired = true
-            newLoc = newLocale
-            oldLoc = oldLocale
-          })
-          i18n.setLocale('fr')
-          if (!fired) throw new Error('Callback not fired')
-          if (newLoc !== 'fr') throw new Error('Wrong new locale in callback')
-          if (oldLoc !== 'en') throw new Error('Wrong old locale in callback')
-          unsub()
-          i18n.setLocale('en') // Reset
-        }
-      },
-      {
-        name: 'onChange unsubscribe works',
-        fn: async () => {
-          let count = 0
-          const unsub = i18n.onChange(() => { count++ })
-          i18n.setLocale('es')
-          unsub()
-          i18n.setLocale('en')
-          if (count !== 1) throw new Error('Unsubscribe did not work')
-        }
-      },
-      {
-        name: 'onMissing callback fires for missing key',
-        fn: async () => {
-          let fired = false
-          let missingKey = null
-          const unsub = i18n.onMissing((key, locale) => {
-            fired = true
-            missingKey = key
-          })
-          i18n.t('totally.missing.key')
-          if (!fired) throw new Error('Callback not fired')
-          if (missingKey !== 'totally.missing.key') throw new Error('Wrong key in callback')
-          unsub()
-        }
-      },
-      {
-        name: 'setMissingBehavior - empty',
-        fn: async () => {
-          i18n.setMissingBehavior('empty')
-          const result = i18n.t('missing')
-          if (result !== '') throw new Error('Should return empty string')
-          i18n.setMissingBehavior('key') // Reset
-        }
-      },
-      {
-        name: 'setMissingBehavior - throw',
-        fn: async () => {
-          i18n.setMissingBehavior('throw')
-          try {
-            i18n.t('missing')
-            throw new Error('Should have thrown error')
-          } catch (e) {
-            if (!e.message.includes('Missing translation')) throw new Error('Wrong error')
-          }
-          i18n.setMissingBehavior('key') // Reset
-        }
-      },
-      {
-        name: 'namespace creates scoped function',
-        fn: async () => {
-          const tCommon = i18n.t.namespace('common')
-          const result = tCommon('save')
-          if (result !== 'Save') throw new Error('Namespace translation failed')
-        }
-      },
-      {
-        name: 'namespace with null returns base function',
-        fn: async () => {
-          const tBase = i18n.t.namespace(null)
-          const result = tBase('hello')
-          if (result !== 'Hello') throw new Error('Null namespace failed')
-        }
-      },
-      {
-        name: 'formatNumber formats according to locale',
-        fn: async () => {
-          const result = i18n.formatNumber(1234567.89)
-          if (!result.includes('1') && !result.includes('234')) {
-            throw new Error('Number not formatted')
-          }
-        }
-      },
-      {
-        name: 'formatNumber throws for non-number',
-        fn: async () => {
-          try {
-            i18n.formatNumber('not a number')
-            throw new Error('Should have thrown TypeError')
-          } catch (e) {
-            if (!(e instanceof TypeError)) throw new Error('Wrong error type')
-          }
-        }
-      },
-      {
-        name: 'formatDate formats date objects',
-        fn: async () => {
-          const date = new Date('2024-03-15')
-          const result = i18n.formatDate(date)
-          if (typeof result !== 'string') throw new Error('Should return string')
-          if (result.length === 0) throw new Error('Result is empty')
-        }
-      },
-      {
-        name: 'formatDate handles timestamps',
-        fn: async () => {
-          const timestamp = Date.now()
-          const result = i18n.formatDate(timestamp)
-          if (typeof result !== 'string') throw new Error('Should return string')
-        }
-      },
-      {
-        name: 'formatRelativeTime formats past time',
-        fn: async () => {
-          const result = i18n.formatRelativeTime(-1, 'day')
-          if (typeof result !== 'string') throw new Error('Should return string')
-        }
-      },
-      {
-        name: 'formatRelativeTime formats future time',
-        fn: async () => {
-          const result = i18n.formatRelativeTime(2, 'hour')
-          if (typeof result !== 'string') throw new Error('Should return string')
-        }
-      },
-      {
-        name: 'Handles reserved word keys (__proto__)',
-        fn: async () => {
-          const instance = createI18n({
-            defaultLocale: 'en',
-            translations: {}
-          })
-          // Create object with __proto__ as actual property
-          const obj = Object.create(null)
-          obj.__proto__ = 'SafeValue'
-          instance.addTranslations('en', obj)
-          const result = instance.t('__proto__')
-          if (result !== 'SafeValue') throw new Error('Reserved word not handled safely')
-        }
-      },
-      {
-        name: 'Deep nesting (10 levels) works',
-        fn: async () => {
-          const deep = { a: { b: { c: { d: { e: { f: { g: { h: { i: { j: 'Deep' } } } } } } } } } }
-          const instance = createI18n({
-            defaultLocale: 'en',
-            translations: { en: deep }
-          })
-          const result = instance.t('a.b.c.d.e.f.g.h.i.j')
-          if (result !== 'Deep') throw new Error('Deep nesting failed')
-        }
-      }
-    ]
+  // Update comparison grid
+  updateFormatComparison(value, options)
 
-    // Test runner implementation
-    window.runAllTests = async function() {
-      const output = document.getElementById('test-output')
-      const summary = document.getElementById('summary')
-      const progress = document.getElementById('progress')
+  // Update state
+  const optStr = JSON.stringify(options).replace(/"/g, "'")
+  document.getElementById('format-state').textContent = `i18n.formatNumber(${value}, ${optStr})`
+}
 
-      output.textContent = ''
-      summary.textContent = ''
-      progress.textContent = 'Running tests...'
+function updateFormatComparison(value, options) {
+  const grid = document.getElementById('format-comparison-grid')
+  grid.innerHTML = ''
 
-      let passed = 0
-      let failed = 0
+  const partLabels = {
+    thousand: 'Thousand Separator',
+    decimal: 'Decimal Separator',
+    symbol: 'Currency Symbol',
+    digits: 'Formatted Number'
+  }
 
-      for (let i = 0; i < tests.length; i++) {
-        const test = tests[i]
-        progress.textContent = `Running test ${i + 1}/${tests.length}: ${test.name}`
+  document.getElementById('format-comparison-title').textContent = `${partLabels[currentFormatPart]} Comparison`
 
-        try {
-          await test.fn()
-          logResult(test.name, 'PASS')
-          passed++
-        } catch (e) {
-          logResult(test.name, 'FAIL', e.message)
-          failed++
+  formatLocales.forEach(locale => {
+    const parts = getFormatParts(value, locale, options)
+    let displayValue = ''
+    let description = ''
+
+    switch (currentFormatPart) {
+      case 'thousand':
+        const groupPart = parts.find(p => p.type === 'group')
+        displayValue = groupPart ? `"${groupPart.value}"` : '(none)'
+        description = groupPart?.value === ',' ? 'comma' : groupPart?.value === '.' ? 'period' : groupPart?.value === ' ' ? 'space' : ''
+        break
+      case 'decimal':
+        const decPart = parts.find(p => p.type === 'decimal')
+        displayValue = decPart ? `"${decPart.value}"` : '(none)'
+        description = decPart?.value === '.' ? 'period' : decPart?.value === ',' ? 'comma' : ''
+        break
+      case 'symbol':
+        const symPart = parts.find(p => p.type === 'currency')
+        if (symPart) {
+          const symIndex = parts.indexOf(symPart)
+          const position = symIndex < parts.length / 2 ? 'before' : 'after'
+          displayValue = symPart.value
+          description = position
+        } else {
+          displayValue = '(none)'
         }
-
-        // Small delay for visual feedback
-        await new Promise(resolve => setTimeout(resolve, 10))
-      }
-
-      progress.textContent = ''
-      logSummary(passed, failed)
+        break
+      case 'digits':
+        displayValue = new Intl.NumberFormat(locale, options).format(value)
+        description = 'full format'
+        break
     }
 
-    function logResult(testName, status, errorMsg) {
-      const output = document.getElementById('test-output')
-      const line = document.createElement('div')
+    const item = document.createElement('div')
+    item.className = 'format-comparison-item'
+    item.innerHTML = `
+      <div class="format-comparison-locale">${locale}</div>
+      <div class="format-comparison-value">${displayValue}</div>
+      ${description ? `<div class="format-comparison-desc">${description}</div>` : ''}
+    `
+    grid.appendChild(item)
+  })
+}
 
-      if (status === 'PASS') {
-        line.innerHTML = `<span class="test-pass">✓ PASS</span> ${testName}`
-      } else {
-        line.innerHTML = `<span class="test-fail">✗ FAIL</span> ${testName}\n  Error: ${errorMsg}`
-      }
+document.getElementById('format-value').addEventListener('input', renderFormatAnatomy)
+document.getElementById('format-type').addEventListener('change', renderFormatAnatomy)
 
-      output.appendChild(line)
-      output.scrollTop = output.scrollHeight
+document.querySelectorAll('.format-part-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.format-part-btn').forEach(b => b.removeAttribute('data-active'))
+    btn.setAttribute('data-active', 'true')
+    currentFormatPart = btn.dataset.part
+    renderFormatAnatomy()
+  })
+})
+
+renderFormatAnatomy()
+
+// ============================================
+// EXHIBIT 4: TRANSLATION TREE WALKER
+// ============================================
+
+const treeData = {
+  common: {
+    buttons: { save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit' },
+    labels: { name: 'Name', email: 'Email', password: 'Password' }
+  },
+  messages: {
+    greeting: 'Hello, {{name}}!',
+    items: { one: '{{count}} item', other: '{{count}} items' }
+  },
+  errors: {
+    required: '{{field}} is required',
+    invalid: 'Invalid {{field}}'
+  }
+}
+
+function renderTree(node, path = [], visited = [], current = null, found = false, notFound = false) {
+  const container = document.createElement('div')
+  container.className = 'tree-node'
+
+  for (const [key, value] of Object.entries(node)) {
+    const nodeDiv = document.createElement('div')
+    nodeDiv.className = 'tree-node'
+
+    const currentPath = [...path, key]
+    const pathStr = currentPath.join('.')
+    const isVisited = visited.includes(pathStr)
+    const isCurrent = current === pathStr
+    const isFound = found && isCurrent
+    const isNotFound = notFound && isCurrent
+
+    const content = document.createElement('div')
+    content.className = 'tree-node-content'
+    if (isVisited && !isCurrent) content.classList.add('visited')
+    if (isCurrent && !isFound && !isNotFound) content.classList.add('current')
+    if (isFound) content.classList.add('found')
+    if (isNotFound) content.classList.add('not-found')
+
+    content.dataset.path = pathStr
+
+    if (typeof value === 'string') {
+      content.innerHTML = `<strong>${key}</strong>: "${value}"`
+    } else {
+      content.innerHTML = `<strong>${key}</strong>`
     }
 
-    function logSummary(passed, failed) {
-      const summary = document.getElementById('summary')
-      const total = passed + failed
+    content.addEventListener('click', () => {
+      document.getElementById('tree-key').value = pathStr
+      lookupKey(pathStr)
+    })
 
-      summary.textContent = `Test Results: ${passed}/${total} passed`
+    nodeDiv.appendChild(content)
 
-      if (failed === 0) {
-        summary.className = 'summary success'
-        summary.textContent += ' ✓ All tests passed!'
-      } else {
-        summary.className = 'summary failure'
-        summary.textContent += ` ✗ ${failed} test${failed !== 1 ? 's' : ''} failed`
-      }
+    if (typeof value === 'object' && value !== null) {
+      const children = document.createElement('div')
+      children.className = 'tree-children'
+      children.appendChild(renderTree(value, currentPath, visited, current, found, notFound))
+      nodeDiv.appendChild(children)
     }
 
-    window.clearResults = function() {
-      document.getElementById('test-output').textContent = ''
-      document.getElementById('summary').textContent = ''
-      document.getElementById('progress').textContent = ''
-    }
+    container.appendChild(nodeDiv)
+  }
 
-    // Interactive demo functions
-    window.testTranslate = function() {
-      const key = document.getElementById('translate-key').value
-      const output = document.getElementById('translate-output')
+  return container
+}
+
+function lookupKey(key) {
+  const parts = key.split('.')
+  const visited = []
+  let current = treeData
+  let found = true
+  let lastValid = null
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]
+    const pathSoFar = parts.slice(0, i + 1).join('.')
+
+    if (current && typeof current === 'object' && part in current) {
+      visited.push(pathSoFar)
+      lastValid = pathSoFar
+      current = current[part]
+    } else {
+      found = false
+      break
+    }
+  }
+
+  // Render tree
+  const viz = document.getElementById('tree-viz')
+  viz.innerHTML = ''
+  const finalPath = found ? parts.join('.') : lastValid
+  viz.appendChild(renderTree(treeData, [], visited, finalPath, found && typeof current === 'string', !found))
+
+  // Render path
+  const pathEl = document.getElementById('tree-path')
+  pathEl.innerHTML = '<span class="tree-path-segment">translations["en"]</span>'
+  parts.forEach((part, i) => {
+    const isActive = i < visited.length
+    pathEl.innerHTML += `<span class="tree-path-arrow">→</span><span class="tree-path-segment ${isActive ? 'active' : ''}">${part}</span>`
+  })
+
+  // Render result
+  const resultEl = document.getElementById('tree-result-value')
+  if (found && typeof current === 'string') {
+    resultEl.textContent = `"${current}"`
+    resultEl.className = 'tree-result-value success'
+  } else if (found && typeof current === 'object') {
+    resultEl.textContent = '[object]'
+    resultEl.className = 'tree-result-value success'
+  } else {
+    resultEl.textContent = `NOT FOUND (failed at "${parts[visited.length]}")`
+    resultEl.className = 'tree-result-value error'
+  }
+
+  // Update state
+  const pathStr = visited.length > 0
+    ? `translations["en"] -> ${visited.join(' -> ')} -> ${found ? `"${current}"` : 'NOT FOUND'}`
+    : `translations["en"] -> NOT FOUND`
+  document.getElementById('tree-state').textContent = pathStr
+}
+
+document.getElementById('tree-lookup').addEventListener('click', () => {
+  lookupKey(document.getElementById('tree-key').value)
+})
+
+document.getElementById('tree-key').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') lookupKey(e.target.value)
+})
+
+document.querySelectorAll('.tree-suggestion').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('tree-key').value = btn.dataset.key
+    lookupKey(btn.dataset.key)
+  })
+})
+
+// Initialize
+lookupKey('common.buttons.save')
+
+// ============================================
+// TEST RUNNER
+// ============================================
+
+const testRunner = {
+  tests: [],
+  results: [],
+  running: false,
+
+  register(name, fn) {
+    this.tests.push({ name, fn })
+  },
+
+  async run() {
+    if (this.running) return
+    this.running = true
+    this.results = []
+
+    const output = document.getElementById('test-output')
+    const progressFill = document.getElementById('progress-fill')
+    const progressText = document.getElementById('progress-text')
+    const summary = document.getElementById('test-summary')
+    const passedCount = document.getElementById('passed-count')
+    const failedCount = document.getElementById('failed-count')
+    const skippedCount = document.getElementById('skipped-count')
+    const runBtn = document.getElementById('run-tests')
+
+    runBtn.disabled = true
+    output.innerHTML = ''
+    summary.classList.add('hidden')
+    progressFill.style.width = '0%'
+    progressFill.className = 'test-progress-fill'
+
+    let passed = 0
+    let failed = 0
+
+    for (let i = 0; i < this.tests.length; i++) {
+      const test = this.tests[i]
+      const progress = ((i + 1) / this.tests.length) * 100
+
+      progressFill.style.width = `${progress}%`
+      progressText.textContent = `Running: ${test.name}`
 
       try {
-        const result = i18n.t(key)
-        output.textContent = `Result: "${result}"\nCurrent Locale: ${i18n.getLocale()}`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
-    }
-
-    window.testInterpolation = function() {
-      const key = document.getElementById('interp-key').value
-      const paramName = document.getElementById('interp-param').value
-      const paramValue = document.getElementById('interp-value').value
-      const output = document.getElementById('interp-output')
-
-      try {
-        const params = { [paramName]: paramValue }
-        const result = i18n.t(key, params)
-        output.textContent = `Result: "${result}"\nParams: ${JSON.stringify(params)}`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
-    }
-
-    window.testPluralization = function() {
-      const count = parseInt(document.getElementById('plural-count').value)
-      const output = document.getElementById('plural-output')
-
-      try {
-        const result = i18n.t('items', { count })
-        output.textContent = `Count: ${count}\nResult: "${result}"\nLocale: ${i18n.getLocale()}`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
-    }
-
-    window.switchLocale = function(locale) {
-      try {
-        i18n.setLocale(locale)
-        const output = document.getElementById('locale-output')
-        output.textContent = `✓ Switched to ${locale}`
-
-        // Update demo
-        const demo = document.getElementById('locale-demo')
-        demo.innerHTML = `
-          <strong>Demo Translations:</strong><br>
-          hello: "${i18n.t('hello')}"<br>
-          common.save: "${i18n.t('common.save')}"<br>
-          greeting (name=Alice): "${i18n.t('greeting', { name: 'Alice' })}"
+        await test.fn()
+        passed++
+        this.results.push({ name: test.name, passed: true })
+        output.innerHTML += `
+          <div class="test-item">
+            <span class="test-icon pass">&#10003;</span>
+            <span class="test-name">${escapeHtml(test.name)}</span>
+          </div>
         `
       } catch (e) {
-        document.getElementById('locale-output').textContent = `Error: ${e.message}`
+        failed++
+        this.results.push({ name: test.name, passed: false, error: e.message })
+        output.innerHTML += `
+          <div class="test-item">
+            <span class="test-icon fail">&#10007;</span>
+            <div>
+              <div class="test-name">${escapeHtml(test.name)}</div>
+              <div class="test-error">${escapeHtml(e.message)}</div>
+            </div>
+          </div>
+        `
+      }
+
+      output.scrollTop = output.scrollHeight
+      await new Promise(r => setTimeout(r, 20))
+    }
+
+    progressFill.classList.add(failed === 0 ? 'success' : 'failure')
+    progressText.textContent = `Complete: ${passed}/${this.tests.length} passed`
+
+    passedCount.textContent = passed
+    failedCount.textContent = failed
+    skippedCount.textContent = 0
+    summary.classList.remove('hidden')
+
+    runBtn.disabled = false
+    this.running = false
+  }
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function expect(actual) {
+  return {
+    toBe(expected) {
+      if (actual !== expected) throw new Error(`Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`)
+    },
+    toEqual(expected) {
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error(`Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`)
+      }
+    },
+    toBeDefined() {
+      if (actual === undefined) throw new Error('Expected value to be defined')
+    },
+    toBeUndefined() {
+      if (actual !== undefined) throw new Error(`Expected undefined but got ${JSON.stringify(actual)}`)
+    },
+    toContain(item) {
+      if (!actual.includes(item)) throw new Error(`Expected array to contain ${JSON.stringify(item)}`)
+    },
+    toThrow(msg) {
+      let threw = false
+      let error = null
+      try { actual() } catch (e) { threw = true; error = e }
+      if (!threw) throw new Error('Expected function to throw')
+      if (msg && !error.message.includes(msg)) throw new Error(`Expected error message to include "${msg}" but got "${error.message}"`)
+    },
+    toBeTruthy() {
+      if (!actual) throw new Error(`Expected truthy value but got ${JSON.stringify(actual)}`)
+    }
+  }
+}
+
+// Register tests
+testRunner.register('creates instance with defaultLocale only', () => {
+  const i18n = createI18n({ defaultLocale: 'en' })
+  expect(i18n).toBeDefined()
+  expect(i18n.getLocale()).toBe('en')
+})
+
+testRunner.register('creates instance with translations', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  expect(i18n.t('hello')).toBe('Hello')
+})
+
+testRunner.register('throws if options is missing', () => {
+  expect(() => createI18n()).toThrow('options is required')
+})
+
+testRunner.register('throws if defaultLocale is missing', () => {
+  expect(() => createI18n({})).toThrow('defaultLocale is required')
+})
+
+testRunner.register('returns translation for simple key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  expect(i18n.t('hello')).toBe('Hello')
+})
+
+testRunner.register('returns translation for nested key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { common: { save: 'Save' } } }
+  })
+  expect(i18n.t('common.save')).toBe('Save')
+})
+
+testRunner.register('returns key if translation missing', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {} }
+  })
+  expect(i18n.t('missing')).toBe('missing')
+})
+
+testRunner.register('uses fallback locale when translation missing', () => {
+  const i18n = createI18n({
+    defaultLocale: 'de',
+    fallbackLocale: 'en',
+    translations: {
+      en: { hello: 'Hello' },
+      de: {}
+    }
+  })
+  expect(i18n.t('hello')).toBe('Hello')
+})
+
+testRunner.register('interpolates single placeholder', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { greeting: 'Hello, {{name}}!' } }
+  })
+  expect(i18n.t('greeting', { name: 'World' })).toBe('Hello, World!')
+})
+
+testRunner.register('interpolates multiple placeholders', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { msg: '{{a}} and {{b}}' } }
+  })
+  expect(i18n.t('msg', { a: 'X', b: 'Y' })).toBe('X and Y')
+})
+
+testRunner.register('leaves placeholder if param missing', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { greeting: 'Hello, {{name}}!' } }
+  })
+  expect(i18n.t('greeting', {})).toBe('Hello, {{name}}!')
+})
+
+testRunner.register('converts number params to string', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { msg: 'Count: {{n}}' } }
+  })
+  expect(i18n.t('msg', { n: 42 })).toBe('Count: 42')
+})
+
+testRunner.register('pluralization: uses one form for count=1', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { items: { one: '{{count}} item', other: '{{count}} items' } } }
+  })
+  expect(i18n.t('items', { count: 1 })).toBe('1 item')
+})
+
+testRunner.register('pluralization: uses other form for count>1', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { items: { one: '{{count}} item', other: '{{count}} items' } } }
+  })
+  expect(i18n.t('items', { count: 5 })).toBe('5 items')
+})
+
+testRunner.register('pluralization: uses zero form when defined', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { items: { zero: 'No items', one: '{{count}} item', other: '{{count}} items' } } }
+  })
+  expect(i18n.t('items', { count: 0 })).toBe('No items')
+})
+
+testRunner.register('setLocale changes current locale', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {}, de: {} }
+  })
+  i18n.setLocale('de')
+  expect(i18n.getLocale()).toBe('de')
+})
+
+testRunner.register('setLocale returns instance for chaining', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' }, de: { hello: 'Hallo' } }
+  })
+  expect(i18n.setLocale('de').t('hello')).toBe('Hallo')
+})
+
+testRunner.register('getAvailableLocales returns all locale codes', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {}, de: {}, fr: {} }
+  })
+  const locales = i18n.getAvailableLocales()
+  expect(locales).toContain('en')
+  expect(locales).toContain('de')
+  expect(locales).toContain('fr')
+})
+
+testRunner.register('addTranslations adds new locale', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {} }
+  })
+  i18n.addTranslations('es', { hello: 'Hola' })
+  expect(i18n.getAvailableLocales()).toContain('es')
+})
+
+testRunner.register('addTranslations merges with existing', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  i18n.addTranslations('en', { goodbye: 'Bye' })
+  expect(i18n.t('hello')).toBe('Hello')
+  expect(i18n.t('goodbye')).toBe('Bye')
+})
+
+testRunner.register('hasKey returns true for existing key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  expect(i18n.hasKey('hello')).toBe(true)
+})
+
+testRunner.register('hasKey returns false for missing key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {} }
+  })
+  expect(i18n.hasKey('missing')).toBe(false)
+})
+
+testRunner.register('getTranslations returns copy of translations', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  const trans = i18n.getTranslations()
+  trans.hello = 'Modified'
+  expect(i18n.t('hello')).toBe('Hello')
+})
+
+testRunner.register('onChange fires on locale change', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {}, de: {} }
+  })
+  let called = false
+  i18n.onChange(() => { called = true })
+  i18n.setLocale('de')
+  expect(called).toBe(true)
+})
+
+testRunner.register('onChange unsubscribe works', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {}, de: {} }
+  })
+  let called = false
+  const unsub = i18n.onChange(() => { called = true })
+  unsub()
+  i18n.setLocale('de')
+  expect(called).toBe(false)
+})
+
+testRunner.register('onMissing fires for missing key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {} }
+  })
+  let missingKey = null
+  i18n.onMissing((key) => { missingKey = key })
+  i18n.t('nonexistent')
+  expect(missingKey).toBe('nonexistent')
+})
+
+testRunner.register('setMissingBehavior: key returns key', () => {
+  const i18n = createI18n({ defaultLocale: 'en', translations: { en: {} } })
+  i18n.setMissingBehavior('key')
+  expect(i18n.t('missing')).toBe('missing')
+})
+
+testRunner.register('setMissingBehavior: empty returns empty string', () => {
+  const i18n = createI18n({ defaultLocale: 'en', translations: { en: {} } })
+  i18n.setMissingBehavior('empty')
+  expect(i18n.t('missing')).toBe('')
+})
+
+testRunner.register('setMissingBehavior: throw throws error', () => {
+  const i18n = createI18n({ defaultLocale: 'en', translations: { en: {} } })
+  i18n.setMissingBehavior('throw')
+  expect(() => i18n.t('missing')).toThrow('Missing translation')
+})
+
+testRunner.register('namespace creates scoped function', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { common: { save: 'Save' } } }
+  })
+  const tCommon = i18n.namespace('common')
+  expect(tCommon('save')).toBe('Save')
+})
+
+testRunner.register('nested namespaces work', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { a: { b: { c: 'Deep' } } } }
+  })
+  const tAB = i18n.namespace('a').namespace('b')
+  expect(tAB('c')).toBe('Deep')
+})
+
+testRunner.register('formatNumber formats according to locale', () => {
+  const i18n = createI18n({ defaultLocale: 'en-US' })
+  const result = i18n.formatNumber(1234567.89)
+  expect(result).toBe('1,234,567.89')
+})
+
+testRunner.register('formatNumber with currency option', () => {
+  const i18n = createI18n({ defaultLocale: 'en-US' })
+  const result = i18n.formatNumber(99.99, { style: 'currency', currency: 'USD' })
+  expect(result).toBe('$99.99')
+})
+
+testRunner.register('formatDate formats date object', () => {
+  const i18n = createI18n({ defaultLocale: 'en-US' })
+  const result = i18n.formatDate(new Date('2024-03-15'))
+  expect(result).toBeTruthy()
+})
+
+testRunner.register('formatRelativeTime formats past time', () => {
+  const i18n = createI18n({ defaultLocale: 'en' })
+  const result = i18n.formatRelativeTime(-1, 'day')
+  expect(result).toContain('ago')
+})
+
+testRunner.register('formatRelativeTime formats future time', () => {
+  const i18n = createI18n({ defaultLocale: 'en' })
+  const result = i18n.formatRelativeTime(2, 'day')
+  expect(result).toContain('in')
+})
+
+testRunner.register('handles deeply nested keys (10 levels)', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { a: { b: { c: { d: { e: { f: { g: { h: { i: { j: 'Deep' } } } } } } } } } } }
+  })
+  expect(i18n.t('a.b.c.d.e.f.g.h.i.j')).toBe('Deep')
+})
+
+testRunner.register('blocks __proto__ key for security', () => {
+  const malicious = JSON.parse('{"__proto__": {"polluted": "yes"}}')
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: malicious }
+  })
+  expect(({}).polluted).toBeUndefined()
+  expect(i18n.t('__proto__')).toBe('__proto__')
+})
+
+testRunner.register('blocks constructor key for security', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { constructor: { prototype: { polluted: 'yes' } } } }
+  })
+  expect(({}).polluted).toBeUndefined()
+})
+
+testRunner.register('isLocaleLoaded returns true for loaded locale', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: {} }
+  })
+  expect(i18n.isLocaleLoaded('en')).toBe(true)
+})
+
+testRunner.register('isLocaleLoaded returns false for unloaded locale', () => {
+  const i18n = createI18n({ defaultLocale: 'en' })
+  expect(i18n.isLocaleLoaded('xx')).toBe(false)
+})
+
+testRunner.register('key lookup is case-sensitive', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { Hello: 'UPPER', hello: 'lower' } }
+  })
+  expect(i18n.t('Hello')).toBe('UPPER')
+  expect(i18n.t('hello')).toBe('lower')
+})
+
+testRunner.register('trims whitespace from key', () => {
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    translations: { en: { hello: 'Hello' } }
+  })
+  expect(i18n.t('  hello  ')).toBe('Hello')
+})
+
+testRunner.register('empty key returns empty string', () => {
+  const i18n = createI18n({ defaultLocale: 'en' })
+  expect(i18n.t('')).toBe('')
+})
+
+document.getElementById('run-tests').addEventListener('click', async () => {
+  await testRunner.run()
+  // After tests complete, play the demo
+  await runAutoDemo()
+})
+
+// Fuzz test runner
+let fuzzRunning = false
+document.getElementById('run-fuzz').addEventListener('click', async () => {
+  if (fuzzRunning) return
+  fuzzRunning = true
+
+  const output = document.getElementById('test-output')
+  const progressFill = document.getElementById('progress-fill')
+  const progressText = document.getElementById('progress-text')
+  const summary = document.getElementById('test-summary')
+  const runBtn = document.getElementById('run-fuzz')
+
+  runBtn.disabled = true
+  output.innerHTML = ''
+  summary.classList.add('hidden')
+  progressFill.style.width = '0%'
+  progressFill.className = 'test-progress-fill'
+
+  const duration = 10000 // 10 seconds
+  const startTime = Date.now()
+  let iterations = 0
+  let errors = 0
+
+  function randomString(len) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-{{}} '
+    return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  }
+
+  function randomKey() {
+    const segments = Math.floor(Math.random() * 5) + 1
+    return Array.from({ length: segments }, () => randomString(Math.floor(Math.random() * 10) + 1)).join('.')
+  }
+
+  function randomParams() {
+    const count = Math.floor(Math.random() * 5)
+    const params = {}
+    for (let i = 0; i < count; i++) {
+      const types = ['string', 'number', 'boolean', 'null']
+      const type = types[Math.floor(Math.random() * types.length)]
+      let value
+      switch (type) {
+        case 'number': value = Math.random() * 1000 - 500; break
+        case 'boolean': value = Math.random() > 0.5; break
+        case 'null': value = null; break
+        default: value = randomString(Math.floor(Math.random() * 20))
+      }
+      params[randomString(5)] = value
+    }
+    return params
+  }
+
+  const i18n = createI18n({
+    defaultLocale: 'en',
+    fallbackLocale: 'en',
+    translations: { en: { test: 'value', nested: { key: '{{param}}' } } }
+  })
+
+  while (Date.now() - startTime < duration) {
+    iterations++
+    const progress = ((Date.now() - startTime) / duration) * 100
+    progressFill.style.width = `${progress}%`
+    progressText.textContent = `Fuzz testing: ${iterations} iterations, ${errors} errors`
+
+    try {
+      // Random translation lookup
+      i18n.t(randomKey(), randomParams())
+
+      // Random hasKey check
+      i18n.hasKey(randomKey())
+
+      // Random formatNumber
+      if (Math.random() > 0.5) {
+        i18n.formatNumber(Math.random() * 1000000 - 500000)
+      }
+    } catch (e) {
+      if (!(e instanceof I18nError) && !(e instanceof TypeError) && !(e instanceof RangeError)) {
+        errors++
+        output.innerHTML += `
+          <div class="test-item">
+            <span class="test-icon fail">&#10007;</span>
+            <div>
+              <div class="test-name">Iteration ${iterations}</div>
+              <div class="test-error">${escapeHtml(e.message)}</div>
+            </div>
+          </div>
+        `
+        output.scrollTop = output.scrollHeight
       }
     }
 
-    window.testFormatNumber = function() {
-      const num = parseFloat(document.getElementById('format-number').value)
-      const output = document.getElementById('format-number-output')
+    // Yield to UI
+    if (iterations % 1000 === 0) {
+      await new Promise(r => setTimeout(r, 0))
+    }
+  }
 
-      try {
-        const result = i18n.formatNumber(num)
-        const currency = i18n.formatNumber(num, { style: 'currency', currency: 'USD' })
-        output.textContent = `Number: ${result}\nCurrency: ${currency}\nLocale: ${i18n.getLocale()}`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
+  progressFill.classList.add(errors === 0 ? 'success' : 'failure')
+  progressText.textContent = `Fuzz complete: ${iterations} iterations, ${errors} unexpected errors`
+
+  if (errors === 0) {
+    output.innerHTML = `
+      <div class="test-item">
+        <span class="test-icon pass">&#10003;</span>
+        <span class="test-name">Fuzz test passed: ${iterations} random operations with no unexpected errors</span>
+      </div>
+    `
+  }
+
+  document.getElementById('passed-count').textContent = errors === 0 ? '1' : '0'
+  document.getElementById('failed-count').textContent = errors > 0 ? '1' : '0'
+  document.getElementById('skipped-count').textContent = '0'
+  summary.classList.remove('hidden')
+
+  runBtn.disabled = false
+  fuzzRunning = false
+})
+
+// ============================================
+// RESET PAGE
+// ============================================
+
+document.getElementById('reset-page').addEventListener('click', () => {
+  location.reload()
+})
+
+// ============================================
+// WATCH DEMO (AUTO-DEMO)
+// ============================================
+
+let demoRunning = false
+
+async function runAutoDemo() {
+  if (demoRunning) return
+  demoRunning = true
+
+  const runBtn = document.getElementById('run-tests')
+  runBtn.disabled = true
+
+  const output = document.getElementById('test-output')
+  const progressFill = document.getElementById('progress-fill')
+  const progressText = document.getElementById('progress-text')
+
+  progressText.textContent = 'Now demonstrating exhibits...'
+  progressFill.style.width = '0%'
+  progressFill.className = 'test-progress-fill'
+
+  const steps = [
+    // Exhibit 1: Plural Rule Visualizer
+    { name: 'Plural: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-plural') },
+    { name: 'Plural: Show count=1 (singular)', fn: () => setSliderValue('plural-slider', 1) },
+    { name: 'Plural: Show count=2', fn: () => setSliderValue('plural-slider', 2) },
+    { name: 'Plural: Show count=5', fn: () => setSliderValue('plural-slider', 5) },
+    { name: 'Plural: Show count=21 (RU surprise!)', fn: () => setSliderValue('plural-slider', 21) },
+    { name: 'Plural: Switch to English/Arabic', fn: () => clickButton('[data-locale-pair="en-ar"]') },
+    { name: 'Plural: Show count=2 (AR two form)', fn: () => setSliderValue('plural-slider', 2) },
+    { name: 'Plural: Show count=11', fn: () => setSliderValue('plural-slider', 11) },
+    { name: 'Plural: Switch to German/Polish', fn: () => clickButton('[data-locale-pair="de-pl"]') },
+    { name: 'Plural: Show count=3', fn: () => setSliderValue('plural-slider', 3) },
+    { name: 'Plural: Reset to English/Russian', fn: () => clickButton('[data-locale-pair="en-ru"]') },
+
+    // Exhibit 2: Interpolation Machine
+    { name: 'Interp: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-interp') },
+    { name: 'Interp: Change name to "World"', fn: () => setInputValue('.interp-param-input[data-param="name"]', 'World') },
+    { name: 'Interp: Change count to "7"', fn: () => setInputValue('.interp-param-input[data-param="count"]', '7') },
+    { name: 'Interp: Change sender to "Claude"', fn: () => setInputValue('.interp-param-input[data-param="sender"]', 'Claude') },
+    { name: 'Interp: Animate substitution', fn: () => animateSubstitution() },
+    { name: 'Interp: Reset to defaults', fn: () => { interpParams.name = 'Alice'; interpParams.count = '3'; interpParams.sender = 'Bob'; renderInterpolation() } },
+
+    // Exhibit 3: Format Dissector
+    { name: 'Format: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-format') },
+    { name: 'Format: Show decimal separator', fn: () => clickButton('.format-part-btn[data-part="decimal"]') },
+    { name: 'Format: Show symbol position', fn: () => clickButton('.format-part-btn[data-part="symbol"]') },
+    { name: 'Format: Change to percent format', fn: () => { document.getElementById('format-type').value = 'percent'; renderFormatAnatomy() } },
+    { name: 'Format: Show digit grouping', fn: () => clickButton('.format-part-btn[data-part="digits"]') },
+    { name: 'Format: Change value to 9876543.21', fn: () => { document.getElementById('format-value').value = '9876543.21'; renderFormatAnatomy() } },
+    { name: 'Format: Change to compact format', fn: () => { document.getElementById('format-type').value = 'compact'; renderFormatAnatomy() } },
+    { name: 'Format: Reset to currency', fn: () => { document.getElementById('format-type').value = 'currency'; document.getElementById('format-value').value = '1234567.89'; clickButton('.format-part-btn[data-part="thousand"]'); renderFormatAnatomy() } },
+
+    // Exhibit 4: Translation Tree Walker
+    { name: 'Tree: Scroll to exhibit', fn: () => scrollToExhibit('exhibit-tree') },
+    { name: 'Tree: Look up common.buttons.cancel', fn: () => { document.getElementById('tree-key').value = 'common.buttons.cancel'; lookupKey('common.buttons.cancel') } },
+    { name: 'Tree: Look up messages.greeting', fn: () => { document.getElementById('tree-key').value = 'messages.greeting'; lookupKey('messages.greeting') } },
+    { name: 'Tree: Try failing key (common.buttons.nope)', fn: () => { document.getElementById('tree-key').value = 'common.buttons.nope'; lookupKey('common.buttons.nope') } },
+    { name: 'Tree: Try errors.required', fn: () => { document.getElementById('tree-key').value = 'errors.required'; lookupKey('errors.required') } },
+    { name: 'Tree: Reset to common.buttons.save', fn: () => { document.getElementById('tree-key').value = 'common.buttons.save'; lookupKey('common.buttons.save') } },
+
+    // Final: scroll to test runner
+    { name: 'Demo complete!', fn: () => scrollToExhibit('test-output') }
+  ]
+
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i]
+    const progress = ((i + 1) / steps.length) * 100
+
+    progressFill.style.width = `${progress}%`
+    progressText.textContent = step.name
+
+    output.innerHTML = `
+      <div class="test-item">
+        <span class="test-icon pass" style="color: var(--accent-blue);">&#9654;</span>
+        <span class="test-name">${escapeHtml(step.name)}</span>
+      </div>
+    `
+
+    try {
+      await step.fn()
+    } catch (e) {
+      console.error('Auto-demo error:', e)
     }
 
-    window.testFormatRelativeTime = function() {
-      const value = parseInt(document.getElementById('rel-time-value').value)
-      const unit = document.getElementById('rel-time-unit').value
-      const output = document.getElementById('format-time-output')
+    await sleep(400) // Human-perceptible delay
+  }
 
-      try {
-        const result = i18n.formatRelativeTime(value, unit)
-        output.textContent = `Result: "${result}"\nLocale: ${i18n.getLocale()}`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
-    }
+  progressFill.classList.add('success')
+  progressText.textContent = 'Complete! Tests passed and demo finished. Try the exhibits yourself.'
 
-    window.testNamespace = function() {
-      const prefix = document.getElementById('namespace-prefix').value
-      const output = document.getElementById('namespace-output')
+  output.innerHTML = `
+    <div class="test-item">
+      <span class="test-icon pass">&#10003;</span>
+      <span class="test-name">Demo playback complete - all exhibits demonstrated</span>
+    </div>
+  `
 
-      try {
-        namespacedT = i18n.t.namespace(prefix || null)
-        output.textContent = `✓ Created scoped translation function for namespace: "${prefix || '(none)'}"`
-      } catch (e) {
-        output.textContent = `Error: ${e.message}`
-      }
-    }
+  runBtn.disabled = false
+  demoRunning = false
+}
 
-    window.testNamespacedTranslate = function() {
-      const key = document.getElementById('namespace-key').value
-      const output = document.getElementById('namespace-output')
+function scrollToExhibit(id) {
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+}
 
-      if (!namespacedT) {
-        output.textContent = 'Error: Please create a scoped function first'
-        return
-      }
+function setSliderValue(id, value) {
+  const slider = document.getElementById(id)
+  if (slider) {
+    slider.value = value
+    slider.dispatchEvent(new Event('input'))
+  }
+}
 
-      try {
-        const result = namespacedT(key)
-        output.textContent += `\n\nTranslation of "${key}": "${result}"`
-      } catch (e) {
-        output.textContent += `\n\nError: ${e.message}`
-      }
-    }
+function setInputValue(selector, value) {
+  const input = document.querySelector(selector)
+  if (input) {
+    input.value = value
+    input.dispatchEvent(new Event('input'))
+  }
+}
 
-    // Initialize locale demo on load
-    switchLocale('en')
+function clickButton(selector) {
+  const btn = document.querySelector(selector)
+  if (btn) {
+    btn.click()
+  }
+}
   </script>
 </body>
 </html>
