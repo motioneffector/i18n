@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locale Management API - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Locale Management API</h1>
+<p>Methods for getting, setting, and querying locale information.</p>
+<hr>
+<h2><code>getLocale()</code></h2>
+<p>Returns the current locale code.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function getLocale(): string
+</code></pre>
+<p><strong>Returns:</strong> <code>string</code> — The current locale code (e.g., <code>&quot;en&quot;</code>, <code>&quot;de-DE&quot;</code>).</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en&#39; })
+
+i18n.getLocale()  // &quot;en&quot;
+
+i18n.setLocale(&#39;de&#39;)
+i18n.getLocale()  // &quot;de&quot;
+</code></pre>
+<hr>
+<h2><code>setLocale()</code></h2>
+<p>Changes the current locale synchronously. Translations must already be loaded.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function setLocale(locale: string): I18n
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>locale</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>The locale code to switch to</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>I18n</code> — The i18n instance for chaining.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: { hello: &#39;Hello&#39; },
+    es: { hello: &#39;Hola&#39; }
+  }
+})
+
+i18n.setLocale(&#39;es&#39;).t(&#39;hello&#39;)  // &quot;Hola&quot;
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>locale</code> is not a string or is empty</li>
+<li><code>Error</code> — If locale has no translations and no fallback is configured</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Fires <code>onChange</code> callbacks when locale actually changes</li>
+<li>Does not fire callbacks if setting to current locale</li>
+<li>Allows setting to unknown locale if <code>fallbackLocale</code> is configured</li>
+</ul>
+<hr>
+<h2><code>setLocaleAsync()</code></h2>
+<p>Changes the current locale, loading translations if necessary.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function setLocaleAsync(locale: string): Promise&lt;I18n&gt;
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>locale</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>The locale code to switch to</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>Promise&lt;I18n&gt;</code> — Resolves to the i18n instance after loading and switching.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: { hello: &#39;Hello&#39; } },
+  loadPath: async (locale) =&gt; {
+    const res = await fetch(`/locales/${locale}.json`)
+    return res.json()
+  }
+})
+
+// Automatically loads Spanish translations, then switches
+await i18n.setLocaleAsync(&#39;es&#39;)
+i18n.t(&#39;hello&#39;)  // &quot;Hola&quot;
+</code></pre>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Uses cached translations if already loaded</li>
+<li>Calls <code>loadPath</code> if locale is not loaded and <code>loadPath</code> is configured</li>
+<li>Falls back to <code>setLocale()</code> after loading</li>
+</ul>
+<hr>
+<h2><code>getAvailableLocales()</code></h2>
+<p>Returns an array of locale codes that have loaded translations.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function getAvailableLocales(): string[]
+</code></pre>
+<p><strong>Returns:</strong> <code>string[]</code> — Array of locale codes with loaded translations.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: { hello: &#39;Hello&#39; },
+    es: { hello: &#39;Hola&#39; },
+    fr: { hello: &#39;Bonjour&#39; }
+  }
+})
+
+i18n.getAvailableLocales()  // [&quot;en&quot;, &quot;es&quot;, &quot;fr&quot;]
+
+i18n.addTranslations(&#39;de&#39;, { hello: &#39;Hallo&#39; })
+i18n.getAvailableLocales()  // [&quot;en&quot;, &quot;es&quot;, &quot;fr&quot;, &quot;de&quot;]
+</code></pre>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Returns a copy of the internal array (safe to modify)</li>
+<li>Order matches insertion order</li>
+<li>Empty array if no translations loaded</li>
+</ul>
+<hr>
+<h2><code>isLocaleLoaded()</code></h2>
+<p>Checks if a locale has translations loaded.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function isLocaleLoaded(locale: string): boolean
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>locale</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>The locale code to check</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>boolean</code> — <code>true</code> if translations exist for this locale.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: { hello: &#39;Hello&#39; } }
+})
+
+i18n.isLocaleLoaded(&#39;en&#39;)  // true
+i18n.isLocaleLoaded(&#39;es&#39;)  // false
+
+await i18n.loadLocale(&#39;es&#39;)
+i18n.isLocaleLoaded(&#39;es&#39;)  // true
+</code></pre>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

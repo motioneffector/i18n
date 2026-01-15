@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizing with Namespaces - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Organizing with Namespaces</h1>
+<p>This guide shows you how to keep translation keys manageable in large applications. You&#39;ll learn to create namespaced translate functions, organize by feature, and share them across components.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-translation-keys.html">Understand translation keys</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll organize translations by:</p>
+<ol>
+<li>Structuring translations hierarchically</li>
+<li>Creating namespaced translate functions</li>
+<li>Sharing namespaced functions across components</li>
+<li>Nesting namespaces for deep structures</li>
+</ol>
+<h2>Step 1: Structure Translations Hierarchically</h2>
+<p>Organize your translation keys by feature, page, or component:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      common: {
+        buttons: {
+          save: &#39;Save&#39;,
+          cancel: &#39;Cancel&#39;,
+          delete: &#39;Delete&#39;,
+          edit: &#39;Edit&#39;
+        },
+        labels: {
+          name: &#39;Name&#39;,
+          email: &#39;Email&#39;,
+          password: &#39;Password&#39;
+        }
+      },
+      auth: {
+        login: {
+          title: &#39;Sign In&#39;,
+          submit: &#39;Log In&#39;,
+          forgotPassword: &#39;Forgot password?&#39;
+        },
+        register: {
+          title: &#39;Create Account&#39;,
+          submit: &#39;Sign Up&#39;,
+          terms: &#39;I agree to the terms&#39;
+        }
+      },
+      dashboard: {
+        welcome: &#39;Welcome back, {{name}}!&#39;,
+        stats: {
+          users: &#39;Active Users&#39;,
+          revenue: &#39;Revenue&#39;,
+          orders: &#39;Orders&#39;
+        }
+      }
+    }
+  }
+})
+</code></pre>
+<h2>Step 2: Create Namespaced Functions</h2>
+<p>Instead of writing the full path every time, create scoped translate functions:</p>
+<pre><code class="language-typescript">// Without namespace - repetitive
+i18n.t(&#39;common.buttons.save&#39;)
+i18n.t(&#39;common.buttons.cancel&#39;)
+i18n.t(&#39;common.buttons.delete&#39;)
+
+// With namespace - cleaner
+const tButtons = i18n.t.namespace(&#39;common.buttons&#39;)
+tButtons(&#39;save&#39;)    // &quot;Save&quot;
+tButtons(&#39;cancel&#39;)  // &quot;Cancel&quot;
+tButtons(&#39;delete&#39;)  // &quot;Delete&quot;
+</code></pre>
+<p>You can also use <code>i18n.namespace()</code> directly:</p>
+<pre><code class="language-typescript">const tButtons = i18n.namespace(&#39;common.buttons&#39;)
+tButtons(&#39;save&#39;)  // &quot;Save&quot;
+</code></pre>
+<h2>Step 3: Use in Components</h2>
+<p>Export namespaced functions for use in specific features:</p>
+<pre><code class="language-typescript">// auth/translations.ts
+export const tLogin = i18n.t.namespace(&#39;auth.login&#39;)
+export const tRegister = i18n.t.namespace(&#39;auth.register&#39;)
+
+// auth/LoginForm.tsx
+import { tLogin } from &#39;./translations&#39;
+
+function LoginForm() {
+  return (
+    &lt;form&gt;
+      &lt;h1&gt;{tLogin(&#39;title&#39;)}&lt;/h1&gt;
+      &lt;button type=&quot;submit&quot;&gt;{tLogin(&#39;submit&#39;)}&lt;/button&gt;
+      &lt;a href=&quot;/forgot&quot;&gt;{tLogin(&#39;forgotPassword&#39;)}&lt;/a&gt;
+    &lt;/form&gt;
+  )
+}
+</code></pre>
+<h2>Step 4: Nest Namespaces</h2>
+<p>For deeply nested structures, chain namespace calls:</p>
+<pre><code class="language-typescript">const tCommon = i18n.t.namespace(&#39;common&#39;)
+const tButtons = tCommon.namespace(&#39;buttons&#39;)
+const tLabels = tCommon.namespace(&#39;labels&#39;)
+
+tButtons(&#39;save&#39;)   // Same as t(&#39;common.buttons.save&#39;)
+tLabels(&#39;email&#39;)   // Same as t(&#39;common.labels.email&#39;)
+</code></pre>
+<p>Or use a dotted path in a single call:</p>
+<pre><code class="language-typescript">const tButtons = i18n.t.namespace(&#39;common.buttons&#39;)
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      common: {
+        buttons: { save: &#39;Save&#39;, cancel: &#39;Cancel&#39; },
+        errors: { required: &#39;{{field}} is required&#39;, invalid: &#39;Invalid {{field}}&#39; }
+      },
+      users: {
+        list: { title: &#39;Users&#39;, empty: &#39;No users found&#39; },
+        form: {
+          createTitle: &#39;New User&#39;,
+          editTitle: &#39;Edit User&#39;,
+          nameLabel: &#39;Full Name&#39;,
+          emailLabel: &#39;Email Address&#39;
+        }
+      },
+      products: {
+        list: { title: &#39;Products&#39;, empty: &#39;No products found&#39; },
+        form: {
+          createTitle: &#39;New Product&#39;,
+          editTitle: &#39;Edit Product&#39;,
+          nameLabel: &#39;Product Name&#39;,
+          priceLabel: &#39;Price&#39;
+        }
+      }
+    }
+  }
+})
+
+// Shared utilities
+const tButtons = i18n.t.namespace(&#39;common.buttons&#39;)
+const tErrors = i18n.t.namespace(&#39;common.errors&#39;)
+
+// Feature-specific
+const tUserList = i18n.t.namespace(&#39;users.list&#39;)
+const tUserForm = i18n.t.namespace(&#39;users.form&#39;)
+const tProductList = i18n.t.namespace(&#39;products.list&#39;)
+const tProductForm = i18n.t.namespace(&#39;products.form&#39;)
+
+// Usage in components
+function UserListPage() {
+  console.log(tUserList(&#39;title&#39;))  // &quot;Users&quot;
+  console.log(tUserList(&#39;empty&#39;))  // &quot;No users found&quot;
+}
+
+function UserFormPage({ isEdit }) {
+  const title = isEdit ? tUserForm(&#39;editTitle&#39;) : tUserForm(&#39;createTitle&#39;)
+  console.log(title)  // &quot;Edit User&quot; or &quot;New User&quot;
+  console.log(tUserForm(&#39;nameLabel&#39;))  // &quot;Full Name&quot;
+  console.log(tButtons(&#39;save&#39;))  // &quot;Save&quot; (shared)
+}
+
+function validateField(fieldName: string, value: string) {
+  if (!value) {
+    return tErrors(&#39;required&#39;, { field: fieldName })
+    // &quot;Full Name is required&quot;
+  }
+  return null
+}
+</code></pre>
+<h2>Variations</h2>
+<h3>Dynamic Namespace Selection</h3>
+<p>Choose namespace at runtime based on context:</p>
+<pre><code class="language-typescript">function getFormTranslations(entityType: &#39;users&#39; | &#39;products&#39;) {
+  return i18n.t.namespace(`${entityType}.form`)
+}
+
+const tForm = getFormTranslations(&#39;users&#39;)
+tForm(&#39;createTitle&#39;)  // &quot;New User&quot;
+</code></pre>
+<h3>Resetting to Root</h3>
+<p>Pass <code>null</code> or empty string to get back to root:</p>
+<pre><code class="language-typescript">const tUsers = i18n.t.namespace(&#39;users&#39;)
+const tRoot = tUsers.namespace(null)
+
+tRoot(&#39;common.buttons.save&#39;)  // Back to full path
+</code></pre>
+<h3>Locale-Reactive Namespaces</h3>
+<p>Namespaced functions always use the current locale:</p>
+<pre><code class="language-typescript">const tButtons = i18n.t.namespace(&#39;common.buttons&#39;)
+
+i18n.setLocale(&#39;en&#39;)
+tButtons(&#39;save&#39;)  // &quot;Save&quot;
+
+i18n.setLocale(&#39;es&#39;)
+tButtons(&#39;save&#39;)  // &quot;Guardar&quot; (if Spanish translations exist)
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Getting the Key Back Instead of Translation</h3>
+<p><strong>Symptom:</strong> <code>tUsers(&#39;list.title&#39;)</code> returns <code>&quot;users.list.title&quot;</code>.</p>
+<p><strong>Cause:</strong> You&#39;re including the namespace prefix in the key.</p>
+<p><strong>Solution:</strong> Only pass the part after the namespace:</p>
+<pre><code class="language-typescript">const tUsers = i18n.t.namespace(&#39;users&#39;)
+
+// Wrong - duplicates the namespace
+tUsers(&#39;users.list.title&#39;)
+
+// Right - just the relative path
+tUsers(&#39;list.title&#39;)
+</code></pre>
+<h3>TypeError: prefix must be a string</h3>
+<p><strong>Symptom:</strong> Error when creating a namespace.</p>
+<p><strong>Cause:</strong> You passed a number or invalid type.</p>
+<p><strong>Solution:</strong> Always pass a string (or null/undefined to reset):</p>
+<pre><code class="language-typescript">// Wrong
+i18n.t.namespace(123)
+
+// Right
+i18n.t.namespace(&#39;users&#39;)
+i18n.t.namespace(null)  // Reset to root
+</code></pre>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-translation-keys.html">Translation Keys Concept</a></strong> - How key lookup works</li>
+<li><strong><a href="guide-using-interpolation.html">Using Interpolation Guide</a></strong> - Use interpolation with namespaces</li>
+<li><strong><a href="api-core.html">Core API</a></strong> - Full <code>namespace()</code> documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

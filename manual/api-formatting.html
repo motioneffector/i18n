@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formatting API - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Formatting API</h1>
+<p>Methods for locale-aware formatting of numbers, dates, and relative times.</p>
+<hr>
+<h2><code>formatNumber()</code></h2>
+<p>Formats a number according to the current locale.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function formatNumber(value: number, options?: Intl.NumberFormatOptions): string
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>value</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>The number to format</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>Intl.NumberFormatOptions</code></td>
+<td>No</td>
+<td>Formatting options passed to <code>Intl.NumberFormat</code></td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>string</code> — The formatted number string.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+// Basic formatting
+i18n.formatNumber(1234567.89)  // &quot;1,234,567.89&quot;
+
+// Currency
+i18n.formatNumber(99.99, {
+  style: &#39;currency&#39;,
+  currency: &#39;USD&#39;
+})  // &quot;$99.99&quot;
+
+// Percentage
+i18n.formatNumber(0.156, { style: &#39;percent&#39; })  // &quot;16%&quot;
+
+// Compact notation
+i18n.formatNumber(1500000, { notation: &#39;compact&#39; })  // &quot;1.5M&quot;
+
+// Precision control
+i18n.formatNumber(3.14159, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 4
+})  // &quot;3.1416&quot;
+
+// Different locale
+i18n.setLocale(&#39;de-DE&#39;)
+i18n.formatNumber(1234.56)  // &quot;1.234,56&quot;
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>value</code> is not a number</li>
+</ul>
+<p><strong>Common Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>style</code></td>
+<td><code>&#39;decimal&#39;</code>, <code>&#39;currency&#39;</code>, <code>&#39;percent&#39;</code>, <code>&#39;unit&#39;</code></td>
+<td>Number format style</td>
+</tr>
+<tr>
+<td><code>currency</code></td>
+<td><code>&#39;USD&#39;</code>, <code>&#39;EUR&#39;</code>, <code>&#39;GBP&#39;</code>, etc.</td>
+<td>Currency code (required for currency style)</td>
+</tr>
+<tr>
+<td><code>notation</code></td>
+<td><code>&#39;standard&#39;</code>, <code>&#39;scientific&#39;</code>, <code>&#39;engineering&#39;</code>, <code>&#39;compact&#39;</code></td>
+<td>Number notation</td>
+</tr>
+<tr>
+<td><code>minimumFractionDigits</code></td>
+<td><code>0-20</code></td>
+<td>Minimum decimal places</td>
+</tr>
+<tr>
+<td><code>maximumFractionDigits</code></td>
+<td><code>0-20</code></td>
+<td>Maximum decimal places</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td><code>&#39;kilometer&#39;</code>, <code>&#39;celsius&#39;</code>, etc.</td>
+<td>Unit for unit style</td>
+</tr>
+</tbody></table>
+<hr>
+<h2><code>formatDate()</code></h2>
+<p>Formats a date according to the current locale.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function formatDate(
+  value: Date | number | string,
+  options?: Intl.DateTimeFormatOptions
+): string
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>value</code></td>
+<td><code>Date | number | string</code></td>
+<td>Yes</td>
+<td>The date to format (Date object, timestamp, or ISO string)</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>Intl.DateTimeFormatOptions</code></td>
+<td>No</td>
+<td>Formatting options passed to <code>Intl.DateTimeFormat</code></td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>string</code> — The formatted date string.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+const date = new Date(&#39;2024-03-15T14:30:00&#39;)
+
+// Default format
+i18n.formatDate(date)  // &quot;3/15/2024&quot;
+
+// Date styles
+i18n.formatDate(date, { dateStyle: &#39;short&#39; })   // &quot;3/15/24&quot;
+i18n.formatDate(date, { dateStyle: &#39;medium&#39; })  // &quot;Mar 15, 2024&quot;
+i18n.formatDate(date, { dateStyle: &#39;long&#39; })    // &quot;March 15, 2024&quot;
+i18n.formatDate(date, { dateStyle: &#39;full&#39; })    // &quot;Friday, March 15, 2024&quot;
+
+// With time
+i18n.formatDate(date, {
+  dateStyle: &#39;medium&#39;,
+  timeStyle: &#39;short&#39;
+})  // &quot;Mar 15, 2024, 2:30 PM&quot;
+
+// Custom format
+i18n.formatDate(date, {
+  weekday: &#39;long&#39;,
+  year: &#39;numeric&#39;,
+  month: &#39;long&#39;,
+  day: &#39;numeric&#39;
+})  // &quot;Friday, March 15, 2024&quot;
+
+// From timestamp
+i18n.formatDate(1710510600000)  // Formatted date
+
+// From ISO string
+i18n.formatDate(&#39;2024-03-15T14:30:00Z&#39;)  // Formatted date
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>value</code> is not a valid date</li>
+</ul>
+<p><strong>Common Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Values</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dateStyle</code></td>
+<td><code>&#39;full&#39;</code>, <code>&#39;long&#39;</code>, <code>&#39;medium&#39;</code>, <code>&#39;short&#39;</code></td>
+<td>Preset date format</td>
+</tr>
+<tr>
+<td><code>timeStyle</code></td>
+<td><code>&#39;full&#39;</code>, <code>&#39;long&#39;</code>, <code>&#39;medium&#39;</code>, <code>&#39;short&#39;</code></td>
+<td>Preset time format</td>
+</tr>
+<tr>
+<td><code>weekday</code></td>
+<td><code>&#39;long&#39;</code>, <code>&#39;short&#39;</code>, <code>&#39;narrow&#39;</code></td>
+<td>Weekday representation</td>
+</tr>
+<tr>
+<td><code>year</code></td>
+<td><code>&#39;numeric&#39;</code>, <code>&#39;2-digit&#39;</code></td>
+<td>Year representation</td>
+</tr>
+<tr>
+<td><code>month</code></td>
+<td><code>&#39;numeric&#39;</code>, <code>&#39;2-digit&#39;</code>, <code>&#39;long&#39;</code>, <code>&#39;short&#39;</code>, <code>&#39;narrow&#39;</code></td>
+<td>Month representation</td>
+</tr>
+<tr>
+<td><code>day</code></td>
+<td><code>&#39;numeric&#39;</code>, <code>&#39;2-digit&#39;</code></td>
+<td>Day representation</td>
+</tr>
+<tr>
+<td><code>hour</code></td>
+<td><code>&#39;numeric&#39;</code>, <code>&#39;2-digit&#39;</code></td>
+<td>Hour representation</td>
+</tr>
+<tr>
+<td><code>minute</code></td>
+<td><code>&#39;numeric&#39;</code>, <code>&#39;2-digit&#39;</code></td>
+<td>Minute representation</td>
+</tr>
+</tbody></table>
+<hr>
+<h2><code>formatRelativeTime()</code></h2>
+<p>Formats a relative time value (e.g., &quot;3 days ago&quot;, &quot;in 2 hours&quot;).</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function formatRelativeTime(
+  value: number,
+  unit: Intl.RelativeTimeFormatUnit
+): string
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>value</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>The numeric value (negative for past, positive for future)</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td><code>Intl.RelativeTimeFormatUnit</code></td>
+<td>Yes</td>
+<td>The time unit</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>string</code> — The formatted relative time string.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en&#39; })
+
+// Past (negative values)
+i18n.formatRelativeTime(-1, &#39;second&#39;)  // &quot;1 second ago&quot;
+i18n.formatRelativeTime(-5, &#39;minute&#39;)  // &quot;5 minutes ago&quot;
+i18n.formatRelativeTime(-2, &#39;hour&#39;)    // &quot;2 hours ago&quot;
+i18n.formatRelativeTime(-1, &#39;day&#39;)     // &quot;1 day ago&quot;
+i18n.formatRelativeTime(-3, &#39;week&#39;)    // &quot;3 weeks ago&quot;
+i18n.formatRelativeTime(-1, &#39;month&#39;)   // &quot;1 month ago&quot;
+i18n.formatRelativeTime(-2, &#39;year&#39;)    // &quot;2 years ago&quot;
+
+// Future (positive values)
+i18n.formatRelativeTime(1, &#39;day&#39;)      // &quot;in 1 day&quot;
+i18n.formatRelativeTime(2, &#39;week&#39;)     // &quot;in 2 weeks&quot;
+
+// Different locale
+i18n.setLocale(&#39;de&#39;)
+i18n.formatRelativeTime(-1, &#39;day&#39;)     // &quot;vor 1 Tag&quot;
+i18n.formatRelativeTime(2, &#39;hour&#39;)     // &quot;in 2 Stunden&quot;
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>value</code> is not a number</li>
+<li><code>RangeError</code> — If <code>unit</code> is not a valid time unit</li>
+</ul>
+<p><strong>Valid Units:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#39;second&#39;</code></td>
+<td>Seconds</td>
+</tr>
+<tr>
+<td><code>&#39;minute&#39;</code></td>
+<td>Minutes</td>
+</tr>
+<tr>
+<td><code>&#39;hour&#39;</code></td>
+<td>Hours</td>
+</tr>
+<tr>
+<td><code>&#39;day&#39;</code></td>
+<td>Days</td>
+</tr>
+<tr>
+<td><code>&#39;week&#39;</code></td>
+<td>Weeks</td>
+</tr>
+<tr>
+<td><code>&#39;month&#39;</code></td>
+<td>Months</td>
+</tr>
+<tr>
+<td><code>&#39;quarter&#39;</code></td>
+<td>Quarters</td>
+</tr>
+<tr>
+<td><code>&#39;year&#39;</code></td>
+<td>Years</td>
+</tr>
+</tbody></table>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

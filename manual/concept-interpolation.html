@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interpolation - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Interpolation</h1>
+<p>Interpolation lets you inject dynamic values into translation strings. Instead of concatenating strings manually, you define placeholders like <code>{{name}}</code> in your translations and pass values when translating.</p>
+<h2>How It Works</h2>
+<p>Placeholders use double curly braces: <code>{{placeholder}}</code>. When you call <code>t()</code> with a params object, each placeholder is replaced with its corresponding value:</p>
+<pre><code>Template:  &quot;Hello, {{name}}! You have {{count}} messages.&quot;
+Params:    { name: &#39;Alice&#39;, count: 5 }
+Result:    &quot;Hello, Alice! You have 5 messages.&quot;
+</code></pre>
+<p>Values are converted to strings automatically. Numbers, booleans, and strings all work. Null and undefined become empty strings.</p>
+<h2>Basic Usage</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      greeting: &#39;Hello, {{name}}!&#39;,
+      status: &#39;{{user}} is {{status}}&#39;,
+      price: &#39;Total: {{amount}}&#39;
+    }
+  }
+})
+
+i18n.t(&#39;greeting&#39;, { name: &#39;World&#39; })           // &quot;Hello, World!&quot;
+i18n.t(&#39;status&#39;, { user: &#39;Alice&#39;, status: &#39;online&#39; })  // &quot;Alice is online&quot;
+i18n.t(&#39;price&#39;, { amount: 99.99 })              // &quot;Total: 99.99&quot;
+</code></pre>
+<h2>Key Points</h2>
+<ul>
+<li><strong>Spaces inside braces are allowed</strong> - <code>{{ name }}</code> works the same as <code>{{name}}</code></li>
+<li><strong>Missing params leave the placeholder</strong> - Useful for debugging: you&#39;ll see <code>{{name}}</code> in the output</li>
+<li><strong>Extra params are ignored</strong> - Pass what you have; unused params don&#39;t cause errors</li>
+<li><strong>Values are not HTML-escaped</strong> - Handle XSS prevention at your rendering layer</li>
+</ul>
+<h2>Examples</h2>
+<h3>Multiple Placeholders</h3>
+<p>Use as many placeholders as you need:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      transfer: &#39;{{sender}} sent {{amount}} to {{recipient}}&#39;
+    }
+  }
+})
+
+i18n.t(&#39;transfer&#39;, {
+  sender: &#39;Alice&#39;,
+  amount: &#39;$50&#39;,
+  recipient: &#39;Bob&#39;
+})
+// &quot;Alice sent $50 to Bob&quot;
+</code></pre>
+<h3>Same Placeholder Multiple Times</h3>
+<p>A placeholder can appear more than once:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      compare: &#39;{{name}} vs {{name}}: It\&#39;s a tie!&#39;
+    }
+  }
+})
+
+i18n.t(&#39;compare&#39;, { name: &#39;Team A&#39; })
+// &quot;Team A vs Team A: It&#39;s a tie!&quot;
+</code></pre>
+<h3>Value Type Conversion</h3>
+<p>Different types are handled automatically:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      info: &#39;Count: {{count}}, Active: {{active}}, Name: {{name}}&#39;
+    }
+  }
+})
+
+i18n.t(&#39;info&#39;, { count: 42, active: true, name: null })
+// &quot;Count: 42, Active: true, Name: &quot;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>string</code></td>
+<td>Used as-is</td>
+</tr>
+<tr>
+<td><code>number</code></td>
+<td>Converted to string (<code>42</code> -&gt; <code>&quot;42&quot;</code>)</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>&quot;true&quot;</code> or <code>&quot;false&quot;</code></td>
+</tr>
+<tr>
+<td><code>null</code></td>
+<td>Empty string</td>
+</tr>
+<tr>
+<td><code>undefined</code></td>
+<td>Empty string</td>
+</tr>
+</tbody></table>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="guide-using-interpolation.html">Using Interpolation</a></strong> - Step-by-step guide with more examples</li>
+<li><strong><a href="concept-pluralization.html">Pluralization</a></strong> - Combine interpolation with plural forms</li>
+<li><strong><a href="api-core.html">Core API</a></strong> - Full <code>t()</code> function documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
