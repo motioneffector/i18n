@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handling Missing Translations - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Handling Missing Translations</h1>
+<p>This guide shows you how to detect and handle missing translations during development and production. You&#39;ll learn to configure callbacks, set behavior modes, and implement robust fallback strategies.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-locale-management.html">Understand locale management</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll handle missing translations by:</p>
+<ol>
+<li>Setting up <code>onMissing</code> callbacks for detection</li>
+<li>Configuring missing behavior modes</li>
+<li>Implementing development-time logging</li>
+<li>Setting up production fallbacks</li>
+</ol>
+<h2>Step 1: Detect Missing Translations</h2>
+<p>Subscribe to the <code>onMissing</code> event to know when a translation is missing:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: { greeting: &#39;Hello&#39; }
+  }
+})
+
+// Subscribe to missing translations
+i18n.onMissing((key, locale) =&gt; {
+  console.warn(`Missing translation: &quot;${key}&quot; in locale &quot;${locale}&quot;`)
+})
+
+i18n.t(&#39;greeting&#39;)       // &quot;Hello&quot; - no callback
+i18n.t(&#39;farewell&#39;)       // &quot;farewell&quot; - callback fires
+// Console: Missing translation: &quot;farewell&quot; in locale &quot;en&quot;
+</code></pre>
+<h2>Step 2: Configure Missing Behavior</h2>
+<p>Choose what happens when a translation is missing:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: {} }
+})
+
+// &#39;key&#39; - Return the key itself (default)
+i18n.setMissingBehavior(&#39;key&#39;)
+i18n.t(&#39;missing.key&#39;)  // &quot;missing.key&quot;
+
+// &#39;empty&#39; - Return empty string
+i18n.setMissingBehavior(&#39;empty&#39;)
+i18n.t(&#39;missing.key&#39;)  // &quot;&quot;
+
+// &#39;throw&#39; - Throw an error
+i18n.setMissingBehavior(&#39;throw&#39;)
+i18n.t(&#39;missing.key&#39;)  // throws Error: Missing translation: missing.key
+</code></pre>
+<h2>Step 3: Set Up Development Logging</h2>
+<p>During development, log missing translations to catch them early:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: { /* your translations */ }
+  }
+})
+
+if (process.env.NODE_ENV === &#39;development&#39;) {
+  const missingKeys = new Set&lt;string&gt;()
+
+  i18n.onMissing((key, locale) =&gt; {
+    const cacheKey = `${locale}:${key}`
+    if (!missingKeys.has(cacheKey)) {
+      missingKeys.add(cacheKey)
+      console.warn(
+        `%c[i18n] Missing: &quot;${key}&quot; in &quot;${locale}&quot;`,
+        &#39;color: orange; font-weight: bold&#39;
+      )
+    }
+  })
+}
+</code></pre>
+<h2>Step 4: Configure Fallback Locale</h2>
+<p>Use <code>fallbackLocale</code> to show translations from a default language when missing:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;de&#39;,
+  fallbackLocale: &#39;en&#39;,  // Fall back to English
+  translations: {
+    en: {
+      greeting: &#39;Hello&#39;,
+      newFeature: &#39;Try our new feature!&#39;
+    },
+    de: {
+      greeting: &#39;Hallo&#39;
+      // &#39;newFeature&#39; not translated yet
+    }
+  }
+})
+
+i18n.t(&#39;greeting&#39;)     // &quot;Hallo&quot; (found in German)
+i18n.t(&#39;newFeature&#39;)   // &quot;Try our new feature!&quot; (falls back to English)
+</code></pre>
+<p>Note: <code>onMissing</code> still fires when falling back, so you know which translations need work.</p>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      app: { title: &#39;My App&#39; },
+      errors: { generic: &#39;Something went wrong&#39; }
+    },
+    es: {
+      app: { title: &#39;Mi Aplicación&#39; }
+      // errors not translated
+    }
+  }
+})
+
+// Development: strict mode with logging
+if (process.env.NODE_ENV === &#39;development&#39;) {
+  const reported = new Set&lt;string&gt;()
+
+  i18n.onMissing((key, locale) =&gt; {
+    const id = `${locale}:${key}`
+    if (!reported.has(id)) {
+      reported.add(id)
+      console.group(&#39;Missing Translation&#39;)
+      console.log(&#39;Key:&#39;, key)
+      console.log(&#39;Locale:&#39;, locale)
+      console.log(&#39;Add to translations:&#39;, `{ &quot;${key}&quot;: &quot;...&quot; }`)
+      console.groupEnd()
+    }
+  })
+
+  // Throw to catch missing translations early
+  i18n.setMissingBehavior(&#39;throw&#39;)
+}
+
+// Production: graceful fallback
+if (process.env.NODE_ENV === &#39;production&#39;) {
+  // Silent fallback to key
+  i18n.setMissingBehavior(&#39;key&#39;)
+
+  // Optional: report to analytics
+  i18n.onMissing((key, locale) =&gt; {
+    analytics.track(&#39;missing_translation&#39;, { key, locale })
+  })
+}
+
+// Usage
+try {
+  i18n.setLocale(&#39;es&#39;)
+  console.log(i18n.t(&#39;app.title&#39;))      // &quot;Mi Aplicación&quot;
+  console.log(i18n.t(&#39;errors.generic&#39;)) // &quot;Something went wrong&quot; (fallback)
+} catch (error) {
+  // Only in development with &#39;throw&#39; behavior
+  console.error(error)
+}
+</code></pre>
+<h2>Variations</h2>
+<h3>Collecting Missing Keys for Export</h3>
+<p>Build a list of missing translations for your localization team:</p>
+<pre><code class="language-typescript">const missingTranslations: Record&lt;string, string[]&gt; = {}
+
+i18n.onMissing((key, locale) =&gt; {
+  if (!missingTranslations[locale]) {
+    missingTranslations[locale] = []
+  }
+  if (!missingTranslations[locale].includes(key)) {
+    missingTranslations[locale].push(key)
+  }
+})
+
+// Later, export for translation
+function exportMissing(): string {
+  return JSON.stringify(missingTranslations, null, 2)
+}
+</code></pre>
+<h3>Custom Fallback Values</h3>
+<p>Return custom fallback values for specific keys:</p>
+<pre><code class="language-typescript">const fallbacks: Record&lt;string, string&gt; = {
+  &#39;errors.network&#39;: &#39;Network error. Please try again.&#39;,
+  &#39;errors.auth&#39;: &#39;Please log in to continue.&#39;
+}
+
+i18n.onMissing((key) =&gt; {
+  if (fallbacks[key]) {
+    // Note: onMissing can&#39;t change the return value,
+    // so add these to your translations instead
+    console.log(`Using fallback for ${key}`)
+  }
+})
+</code></pre>
+<h3>Unsubscribing from Events</h3>
+<p>Clean up when no longer needed:</p>
+<pre><code class="language-typescript">const unsubscribe = i18n.onMissing((key, locale) =&gt; {
+  console.log(`Missing: ${key} in ${locale}`)
+})
+
+// Later, stop listening
+unsubscribe()
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Callback Fires Even with Fallback</h3>
+<p><strong>Symptom:</strong> <code>onMissing</code> fires even though the translation appears.</p>
+<p><strong>Cause:</strong> The key was missing in the current locale but found in the fallback.</p>
+<p><strong>Explanation:</strong> This is intentional. It tells you which translations need to be added to the current locale:</p>
+<pre><code class="language-typescript">i18n.setLocale(&#39;de&#39;)
+i18n.t(&#39;greeting&#39;)  // Shows English fallback
+// onMissing fires with (&#39;greeting&#39;, &#39;de&#39;)
+// This means: &quot;Add &#39;greeting&#39; to German translations&quot;
+</code></pre>
+<h3>Throw Mode Breaking the App</h3>
+<p><strong>Symptom:</strong> App crashes when a translation is missing.</p>
+<p><strong>Cause:</strong> You&#39;re using <code>&#39;throw&#39;</code> behavior in production.</p>
+<p><strong>Solution:</strong> Only use <code>&#39;throw&#39;</code> in development:</p>
+<pre><code class="language-typescript">if (process.env.NODE_ENV === &#39;development&#39;) {
+  i18n.setMissingBehavior(&#39;throw&#39;)
+} else {
+  i18n.setMissingBehavior(&#39;key&#39;)
+}
+</code></pre>
+<h3>Too Many Console Warnings</h3>
+<p><strong>Symptom:</strong> Console is flooded with missing translation warnings.</p>
+<p><strong>Cause:</strong> The same missing key is being accessed repeatedly.</p>
+<p><strong>Solution:</strong> Deduplicate the warnings:</p>
+<pre><code class="language-typescript">const reported = new Set&lt;string&gt;()
+
+i18n.onMissing((key, locale) =&gt; {
+  const id = `${locale}:${key}`
+  if (!reported.has(id)) {
+    reported.add(id)
+    console.warn(`Missing: ${key} in ${locale}`)
+  }
+})
+</code></pre>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-locale-management.html">Locale Management Concept</a></strong> - Fallback behavior</li>
+<li><strong><a href="guide-changing-locales.html">Changing Locales Guide</a></strong> - Runtime locale switching</li>
+<li><strong><a href="api-events.html">Event Callbacks API</a></strong> - Full <code>onMissing</code> documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

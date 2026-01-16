@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Types Reference - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Types Reference</h1>
+<p>All TypeScript types exported by the library.</p>
+<hr>
+<h2>Core Types</h2>
+<h3><code>I18n</code></h3>
+<p>The main i18n instance interface with all translation and management methods.</p>
+<pre><code class="language-typescript">interface I18n {
+  t: TranslateFunction
+  getLocale: () =&gt; string
+  setLocale: (locale: string) =&gt; I18n
+  setLocaleAsync: (locale: string) =&gt; Promise&lt;I18n&gt;
+  getAvailableLocales: () =&gt; string[]
+  addTranslations: (locale: string, translations: TranslationObject) =&gt; I18n
+  hasKey: (key: string, locale?: string) =&gt; boolean
+  getTranslations: (locale?: string) =&gt; TranslationObject
+  loadLocale: (locale: string, options?: LoadLocaleOptions) =&gt; Promise&lt;void&gt;
+  isLocaleLoaded: (locale: string) =&gt; boolean
+  onChange: (callback: ChangeCallback) =&gt; () =&gt; void
+  onMissing: (callback: MissingCallback) =&gt; () =&gt; void
+  setMissingBehavior: (behavior: MissingBehavior) =&gt; I18n
+  namespace: (prefix: string | null | undefined) =&gt; TranslateFunction
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) =&gt; string
+  formatDate: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =&gt; string
+  formatRelativeTime: (value: number, unit: Intl.RelativeTimeFormatUnit) =&gt; string
+}
+</code></pre>
+<hr>
+<h3><code>I18nOptions</code></h3>
+<p>Configuration options for <code>createI18n()</code>.</p>
+<pre><code class="language-typescript">interface I18nOptions {
+  defaultLocale: string
+  fallbackLocale?: string
+  translations?: Record&lt;string, TranslationObject&gt;
+  loadPath?: LoadPathFunction
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>defaultLocale</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>The initial locale code</td>
+</tr>
+<tr>
+<td><code>fallbackLocale</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Locale to use when translation is missing</td>
+</tr>
+<tr>
+<td><code>translations</code></td>
+<td><code>Record&lt;string, TranslationObject&gt;</code></td>
+<td>No</td>
+<td>Initial translations keyed by locale</td>
+</tr>
+<tr>
+<td><code>loadPath</code></td>
+<td><code>LoadPathFunction</code></td>
+<td>No</td>
+<td>Async function to load translations</td>
+</tr>
+</tbody></table>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const options: I18nOptions = {
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,
+  translations: {
+    en: { greeting: &#39;Hello&#39; },
+    es: { greeting: &#39;Hola&#39; }
+  },
+  loadPath: async (locale) =&gt; {
+    const res = await fetch(`/locales/${locale}.json`)
+    return res.json()
+  }
+}
+</code></pre>
+<hr>
+<h3><code>TranslateFunction</code></h3>
+<p>The <code>t()</code> function type with the <code>namespace</code> method.</p>
+<pre><code class="language-typescript">interface TranslateFunction {
+  (key: string, params?: InterpolationParams): string
+  namespace: (prefix: string | null | undefined) =&gt; TranslateFunction
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const t: TranslateFunction = i18n.t
+
+t(&#39;greeting&#39;)                    // Call as function
+t(&#39;greeting&#39;, { name: &#39;World&#39; }) // With params
+t.namespace(&#39;common&#39;)            // Create namespaced function
+</code></pre>
+<hr>
+<h2>Translation Types</h2>
+<h3><code>TranslationObject</code></h3>
+<p>A nested object containing translation values.</p>
+<pre><code class="language-typescript">interface TranslationObject {
+  [key: string]: TranslationValue
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const translations: TranslationObject = {
+  greeting: &#39;Hello&#39;,
+  nested: {
+    key: &#39;Nested value&#39;
+  },
+  items: {
+    one: &#39;{{count}} item&#39;,
+    other: &#39;{{count}} items&#39;
+  }
+}
+</code></pre>
+<hr>
+<h3><code>TranslationValue</code></h3>
+<p>A union type for all possible translation values.</p>
+<pre><code class="language-typescript">type TranslationValue = string | TranslationObject | PluralTranslations
+</code></pre>
+<hr>
+<h3><code>PluralTranslations</code></h3>
+<p>Object containing plural forms for a translation.</p>
+<pre><code class="language-typescript">interface PluralTranslations {
+  zero?: string
+  one?: string
+  two?: string
+  few?: string
+  many?: string
+  other: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>zero</code></td>
+<td>No</td>
+<td>Form for zero (custom, not Intl-based)</td>
+</tr>
+<tr>
+<td><code>one</code></td>
+<td>No</td>
+<td>Form for singular (1 in English)</td>
+</tr>
+<tr>
+<td><code>two</code></td>
+<td>No</td>
+<td>Form for dual (Arabic)</td>
+</tr>
+<tr>
+<td><code>few</code></td>
+<td>No</td>
+<td>Form for few (Russian 2-4)</td>
+</tr>
+<tr>
+<td><code>many</code></td>
+<td>No</td>
+<td>Form for many (Russian 5-20)</td>
+</tr>
+<tr>
+<td><code>other</code></td>
+<td>Yes</td>
+<td>Default/fallback form</td>
+</tr>
+</tbody></table>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const plurals: PluralTranslations = {
+  zero: &#39;No items&#39;,
+  one: &#39;{{count}} item&#39;,
+  other: &#39;{{count}} items&#39;
+}
+</code></pre>
+<hr>
+<h3><code>InterpolationParams</code></h3>
+<p>Parameters for interpolation in translations.</p>
+<pre><code class="language-typescript">type InterpolationParams = Record&lt;string, string | number | boolean | null | undefined&gt;
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const params: InterpolationParams = {
+  name: &#39;Alice&#39;,
+  count: 5,
+  active: true,
+  optional: null
+}
+</code></pre>
+<hr>
+<h2>Callback Types</h2>
+<h3><code>ChangeCallback</code></h3>
+<p>Callback function for locale change events.</p>
+<pre><code class="language-typescript">type ChangeCallback = (newLocale: string, prevLocale: string) =&gt; void
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const callback: ChangeCallback = (newLocale, prevLocale) =&gt; {
+  console.log(`Changed from ${prevLocale} to ${newLocale}`)
+}
+</code></pre>
+<hr>
+<h3><code>MissingCallback</code></h3>
+<p>Callback function for missing translation events.</p>
+<pre><code class="language-typescript">type MissingCallback = (key: string, locale: string) =&gt; void
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const callback: MissingCallback = (key, locale) =&gt; {
+  console.warn(`Missing: ${key} in ${locale}`)
+}
+</code></pre>
+<hr>
+<h2>Configuration Types</h2>
+<h3><code>MissingBehavior</code></h3>
+<p>Behavior mode when a translation is missing.</p>
+<pre><code class="language-typescript">type MissingBehavior = &#39;key&#39; | &#39;empty&#39; | &#39;throw&#39;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#39;key&#39;</code></td>
+<td>Return the key string (default)</td>
+</tr>
+<tr>
+<td><code>&#39;empty&#39;</code></td>
+<td>Return empty string</td>
+</tr>
+<tr>
+<td><code>&#39;throw&#39;</code></td>
+<td>Throw an <code>I18nError</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h3><code>LoadPathFunction</code></h3>
+<p>Async function type for loading translations dynamically.</p>
+<pre><code class="language-typescript">type LoadPathFunction = (locale: string) =&gt; Promise&lt;TranslationObject&gt;
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const loadPath: LoadPathFunction = async (locale) =&gt; {
+  const response = await fetch(`/locales/${locale}.json`)
+  if (!response.ok) throw new Error(`Failed to load ${locale}`)
+  return response.json()
+}
+</code></pre>
+<hr>
+<h3><code>LoadLocaleOptions</code></h3>
+<p>Options for <code>loadLocale()</code>.</p>
+<pre><code class="language-typescript">interface LoadLocaleOptions {
+  forceReload?: boolean
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>forceReload</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>Force reload even if already loaded</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Error Types</h2>
+<h3><code>I18nError</code></h3>
+<p>Error thrown for i18n-specific errors (e.g., missing translations in throw mode).</p>
+<pre><code class="language-typescript">class I18nError extends Error {
+  name: &#39;I18nError&#39;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { I18nError } from &#39;@motioneffector/i18n&#39;
+
+try {
+  i18n.setMissingBehavior(&#39;throw&#39;)
+  i18n.t(&#39;missing.key&#39;)
+} catch (error) {
+  if (error instanceof I18nError) {
+    console.error(&#39;Translation error:&#39;, error.message)
+  }
+}
+</code></pre>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@motioneffector/i18n - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>@motioneffector/i18n</h1>
+<p>A translation function with superpowers. Call <code>t(&#39;key&#39;)</code> and get back localized text, with interpolation, pluralization, and formatting handled automatically. Zero dependencies, full TypeScript safety, works everywhere JavaScript runs.</p>
+<h2>I want to...</h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Where to go</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Get up and running quickly</td>
+<td><a href="your-first-translation.html">Your First Translation</a></td>
+</tr>
+<tr>
+<td>Understand how translation keys work</td>
+<td><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></td>
+</tr>
+<tr>
+<td>Add dynamic values to my translations</td>
+<td><a href="guide-using-interpolation.html">Using Interpolation</a></td>
+</tr>
+<tr>
+<td>Handle singular/plural forms</td>
+<td><a href="guide-pluralization.html">Pluralization</a></td>
+</tr>
+<tr>
+<td>Switch languages at runtime</td>
+<td><a href="guide-changing-locales.html">Changing Locales</a></td>
+</tr>
+<tr>
+<td>Load translations on demand</td>
+<td><a href="guide-lazy-loading.html">Lazy Loading Translations</a></td>
+</tr>
+<tr>
+<td>Look up a specific method</td>
+<td><a href="api-core.html">API Reference</a></td>
+</tr>
+</tbody></table>
+<h2>Key Concepts</h2>
+<h3>Translation Keys</h3>
+<p>Dot-notation paths into a nested translation object. Write <code>t(&#39;common.buttons.save&#39;)</code> to traverse <code>common -&gt; buttons -&gt; save</code>. Use namespaces to create scoped translate functions and avoid repeating prefixes.</p>
+<h3>Interpolation</h3>
+<p>Template placeholders like <code>{{name}}</code> get replaced with values you pass. Call <code>t(&#39;greeting&#39;, { name: &#39;World&#39; })</code> and <code>&quot;Hello, {{name}}!&quot;</code> becomes <code>&quot;Hello, World!&quot;</code>.</p>
+<h3>Pluralization</h3>
+<p>Pass <code>{ count: n }</code> and the library picks the right plural form automatically. English needs <code>one</code> and <code>other</code>; the library handles complex languages like Russian and Arabic too.</p>
+<h2>Quick Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      greeting: &#39;Hello, {{name}}!&#39;,
+      items: {
+        one: &#39;You have {{count}} item&#39;,
+        other: &#39;You have {{count}} items&#39;
+      }
+    }
+  }
+})
+
+// Simple translation with interpolation
+i18n.t(&#39;greeting&#39;, { name: &#39;World&#39; })  // &quot;Hello, World!&quot;
+
+// Automatic pluralization
+i18n.t(&#39;items&#39;, { count: 1 })  // &quot;You have 1 item&quot;
+i18n.t(&#39;items&#39;, { count: 5 })  // &quot;You have 5 items&quot;
+</code></pre>
+<hr>
+<p><strong><a href="api-core.html">Full API Reference -&gt;</a></strong></p>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

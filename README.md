@@ -19,7 +19,7 @@ A lightweight, type-safe internationalization library with zero dependencies for
 - **Format Utilities** - Built-in number, date, and relative time formatting
 - **Change Callbacks** - React to locale changes and missing translations
 
-[Read the full manual →](https://github.com/motioneffector/i18n/wiki)
+[Read the full manual →](https://motioneffector.github.io/i18n/manual/)
 
 ## Quick Start
 

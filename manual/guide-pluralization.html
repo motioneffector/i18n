@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pluralization - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Pluralization</h1>
+<p>This guide shows you how to handle singular and plural forms correctly across different languages. You&#39;ll learn to set up plural translations, handle edge cases, and support complex languages.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-interpolation.html">Understand interpolation</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll implement pluralization by:</p>
+<ol>
+<li>Structuring translations as plural objects</li>
+<li>Passing <code>count</code> to select the right form</li>
+<li>Adding custom <code>zero</code> text</li>
+<li>Supporting complex languages like Russian</li>
+</ol>
+<h2>Step 1: Structure Plural Translations</h2>
+<p>Instead of a single string, define an object with plural forms:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      // Regular string - not pluralized
+      title: &#39;Shopping Cart&#39;,
+
+      // Plural object - automatically selected based on count
+      items: {
+        one: &#39;{{count}} item&#39;,
+        other: &#39;{{count}} items&#39;
+      }
+    }
+  }
+})
+</code></pre>
+<p>For English, you need two forms:</p>
+<ul>
+<li><code>one</code> - used when count is exactly 1</li>
+<li><code>other</code> - used for 0, 2, 3, 4, 5, etc.</li>
+</ul>
+<h2>Step 2: Use Count Parameter</h2>
+<p>Pass <code>{ count: n }</code> to trigger pluralization:</p>
+<pre><code class="language-typescript">i18n.t(&#39;items&#39;, { count: 0 })   // &quot;0 items&quot;
+i18n.t(&#39;items&#39;, { count: 1 })   // &quot;1 item&quot;
+i18n.t(&#39;items&#39;, { count: 2 })   // &quot;2 items&quot;
+i18n.t(&#39;items&#39;, { count: 100 }) // &quot;100 items&quot;
+</code></pre>
+<p>The <code>count</code> value is automatically available for interpolation in the plural string.</p>
+<h2>Step 3: Add Custom Zero Text</h2>
+<p>Use the <code>zero</code> form for special messaging when count is 0:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      notifications: {
+        zero: &#39;No new notifications&#39;,
+        one: &#39;{{count}} new notification&#39;,
+        other: &#39;{{count}} new notifications&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;notifications&#39;, { count: 0 })  // &quot;No new notifications&quot;
+i18n.t(&#39;notifications&#39;, { count: 1 })  // &quot;1 new notification&quot;
+i18n.t(&#39;notifications&#39;, { count: 5 })  // &quot;5 new notifications&quot;
+</code></pre>
+<h2>Step 4: Support Complex Languages</h2>
+<p>Languages like Russian, Polish, and Arabic have more plural forms. The library uses <code>Intl.PluralRules</code> to select the right one:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;ru&#39;,
+  translations: {
+    ru: {
+      files: {
+        one: &#39;{{count}} файл&#39;,      // 1, 21, 31, 41...
+        few: &#39;{{count}} файла&#39;,     // 2-4, 22-24, 32-34...
+        many: &#39;{{count}} файлов&#39;,   // 0, 5-20, 25-30...
+        other: &#39;{{count}} файла&#39;    // Fractional numbers
+      }
+    }
+  }
+})
+
+i18n.t(&#39;files&#39;, { count: 1 })   // &quot;1 файл&quot;
+i18n.t(&#39;files&#39;, { count: 2 })   // &quot;2 файла&quot;
+i18n.t(&#39;files&#39;, { count: 5 })   // &quot;5 файлов&quot;
+i18n.t(&#39;files&#39;, { count: 21 })  // &quot;21 файл&quot;
+i18n.t(&#39;files&#39;, { count: 22 })  // &quot;22 файла&quot;
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      cart: {
+        zero: &#39;Your cart is empty&#39;,
+        one: &#39;You have {{count}} item in your cart&#39;,
+        other: &#39;You have {{count}} items in your cart&#39;
+      },
+      reviews: {
+        zero: &#39;No reviews yet. Be the first!&#39;,
+        one: &#39;{{count}} customer review&#39;,
+        other: &#39;{{count}} customer reviews&#39;
+      },
+      daysLeft: {
+        one: &#39;{{count}} day remaining&#39;,
+        other: &#39;{{count}} days remaining&#39;
+      }
+    }
+  }
+})
+
+// Shopping cart
+console.log(i18n.t(&#39;cart&#39;, { count: 0 }))  // &quot;Your cart is empty&quot;
+console.log(i18n.t(&#39;cart&#39;, { count: 1 }))  // &quot;You have 1 item in your cart&quot;
+console.log(i18n.t(&#39;cart&#39;, { count: 3 }))  // &quot;You have 3 items in your cart&quot;
+
+// Reviews
+console.log(i18n.t(&#39;reviews&#39;, { count: 0 }))   // &quot;No reviews yet. Be the first!&quot;
+console.log(i18n.t(&#39;reviews&#39;, { count: 42 }))  // &quot;42 customer reviews&quot;
+
+// Countdown
+console.log(i18n.t(&#39;daysLeft&#39;, { count: 1 }))  // &quot;1 day remaining&quot;
+console.log(i18n.t(&#39;daysLeft&#39;, { count: 7 }))  // &quot;7 days remaining&quot;
+</code></pre>
+<h2>Variations</h2>
+<h3>Combining with Other Parameters</h3>
+<p>Use <code>count</code> alongside other interpolation params:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      userFiles: {
+        one: &#39;{{name}} has {{count}} file&#39;,
+        other: &#39;{{name}} has {{count}} files&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;userFiles&#39;, { name: &#39;Alice&#39;, count: 1 })
+// &quot;Alice has 1 file&quot;
+
+i18n.t(&#39;userFiles&#39;, { name: &#39;Bob&#39;, count: 42 })
+// &quot;Bob has 42 files&quot;
+</code></pre>
+<h3>Handling Negative Numbers</h3>
+<p>Negative numbers work correctly. The plural rule uses the absolute value, but the display keeps the negative:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      change: {
+        one: &#39;{{count}} point change&#39;,
+        other: &#39;{{count}} points change&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;change&#39;, { count: -1 })   // &quot;-1 point change&quot;
+i18n.t(&#39;change&#39;, { count: -5 })   // &quot;-5 points change&quot;
+</code></pre>
+<h3>Fallback Behavior</h3>
+<p>If a specific plural form is missing, the library falls back to <code>other</code>:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      items: {
+        // Missing &#39;one&#39; form
+        other: &#39;{{count}} items&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;items&#39;, { count: 1 })  // &quot;1 items&quot; (uses &#39;other&#39;)
+i18n.t(&#39;items&#39;, { count: 5 })  // &quot;5 items&quot;
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Wrong Plural Form Selected</h3>
+<p><strong>Symptom:</strong> The translation shows &quot;1 items&quot; instead of &quot;1 item&quot;.</p>
+<p><strong>Cause:</strong> Missing the <code>one</code> form in your translations.</p>
+<p><strong>Solution:</strong> Add all required plural forms for your language:</p>
+<pre><code class="language-typescript">// Wrong - missing &#39;one&#39;
+{ items: { other: &#39;{{count}} items&#39; } }
+
+// Right
+{ items: { one: &#39;{{count}} item&#39;, other: &#39;{{count}} items&#39; } }
+</code></pre>
+<h3>Plural Not Working At All</h3>
+<p><strong>Symptom:</strong> You see the key name instead of the translation.</p>
+<p><strong>Cause:</strong> <code>count</code> must be a number, not a string.</p>
+<p><strong>Solution:</strong> Ensure count is numeric:</p>
+<pre><code class="language-typescript">// Wrong - count is a string
+i18n.t(&#39;items&#39;, { count: &#39;5&#39; })
+
+// Right - count is a number
+i18n.t(&#39;items&#39;, { count: 5 })
+i18n.t(&#39;items&#39;, { count: parseInt(userInput) })
+</code></pre>
+<h2>Plural Forms Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Forms Needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>English, German, Spanish, Italian</td>
+<td><code>one</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>French</td>
+<td><code>one</code>, <code>other</code> (note: 0 uses <code>one</code> in French)</td>
+</tr>
+<tr>
+<td>Russian, Ukrainian, Polish</td>
+<td><code>one</code>, <code>few</code>, <code>many</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td><code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>Chinese, Japanese, Korean</td>
+<td><code>other</code> only</td>
+</tr>
+</tbody></table>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-pluralization.html">Pluralization Concept</a></strong> - How plural selection works</li>
+<li><strong><a href="guide-using-interpolation.html">Interpolation Guide</a></strong> - More on dynamic values</li>
+<li><strong><a href="api-core.html">Core API</a></strong> - Full <code>t()</code> function documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

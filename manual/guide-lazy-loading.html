@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lazy Loading Translations - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Lazy Loading Translations</h1>
+<p>This guide shows you how to load translation files on demand instead of bundling everything upfront. You&#39;ll learn to configure dynamic loading, handle loading states, and implement preloading strategies.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-locale-management.html">Understand locale management</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll implement lazy loading by:</p>
+<ol>
+<li>Configuring a <code>loadPath</code> function</li>
+<li>Loading locales explicitly or automatically</li>
+<li>Handling loading states and errors</li>
+<li>Implementing preloading for better UX</li>
+</ol>
+<h2>Step 1: Configure loadPath</h2>
+<p>Provide a <code>loadPath</code> function that fetches translations for a given locale:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    // Include default locale inline for instant availability
+    en: {
+      greeting: &#39;Hello&#39;,
+      loading: &#39;Loading...&#39;
+    }
+  },
+  loadPath: async (locale) =&gt; {
+    const response = await fetch(`/locales/${locale}.json`)
+    if (!response.ok) {
+      throw new Error(`Failed to load ${locale}`)
+    }
+    return response.json()
+  }
+})
+</code></pre>
+<p>The <code>loadPath</code> function receives a locale code and must return a Promise that resolves to a translation object.</p>
+<h2>Step 2: Load Locales on Demand</h2>
+<p>Use <code>loadLocale()</code> to fetch translations explicitly:</p>
+<pre><code class="language-typescript">// Load German translations
+await i18n.loadLocale(&#39;de&#39;)
+
+// Now you can switch to German
+i18n.setLocale(&#39;de&#39;)
+console.log(i18n.t(&#39;greeting&#39;))  // &quot;Hallo&quot; (from loaded file)
+</code></pre>
+<p>Or use <code>setLocaleAsync()</code> to load and switch in one step:</p>
+<pre><code class="language-typescript">// Automatically loads if not already loaded, then switches
+await i18n.setLocaleAsync(&#39;fr&#39;)
+console.log(i18n.t(&#39;greeting&#39;))  // &quot;Bonjour&quot;
+</code></pre>
+<h2>Step 3: Handle Loading States</h2>
+<p>Show feedback while translations load:</p>
+<pre><code class="language-typescript">async function switchLanguage(locale: string) {
+  const button = document.querySelector(&#39;#lang-button&#39;)
+
+  try {
+    button.disabled = true
+    button.textContent = i18n.t(&#39;loading&#39;)
+
+    await i18n.setLocaleAsync(locale)
+
+    // Locale is now active, update UI
+    renderApp()
+  } catch (error) {
+    console.error(&#39;Failed to load locale:&#39;, error)
+    // Show error message or fall back
+  } finally {
+    button.disabled = false
+  }
+}
+</code></pre>
+<h2>Step 4: Implement Preloading</h2>
+<p>Preload likely locales to reduce wait time when switching:</p>
+<pre><code class="language-typescript">// Preload on hover over language menu
+languageMenu.addEventListener(&#39;mouseenter&#39;, () =&gt; {
+  const locales = [&#39;es&#39;, &#39;fr&#39;, &#39;de&#39;]
+  locales.forEach(locale =&gt; {
+    if (!i18n.isLocaleLoaded(locale)) {
+      i18n.loadLocale(locale).catch(() =&gt; {
+        // Ignore preload failures
+      })
+    }
+  })
+})
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      app: {
+        title: &#39;My App&#39;,
+        loading: &#39;Loading language...&#39;,
+        error: &#39;Failed to load language&#39;
+      }
+    }
+  },
+  loadPath: async (locale) =&gt; {
+    const response = await fetch(`/locales/${locale}.json`)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+    return response.json()
+  }
+})
+
+// Language switcher component
+class LanguageSwitcher {
+  private loading = false
+
+  async switchTo(locale: string) {
+    if (this.loading) return
+    if (i18n.getLocale() === locale) return
+
+    this.loading = true
+    this.render()
+
+    try {
+      await i18n.setLocaleAsync(locale)
+    } catch (error) {
+      alert(i18n.t(&#39;app.error&#39;))
+    } finally {
+      this.loading = false
+      this.render()
+    }
+  }
+
+  render() {
+    const el = document.querySelector(&#39;#language-switcher&#39;)
+    if (this.loading) {
+      el.textContent = i18n.t(&#39;app.loading&#39;)
+    } else {
+      el.textContent = i18n.getLocale().toUpperCase()
+    }
+  }
+}
+
+// Check what&#39;s loaded
+console.log(i18n.isLocaleLoaded(&#39;en&#39;))  // true (bundled)
+console.log(i18n.isLocaleLoaded(&#39;es&#39;))  // false (not loaded yet)
+
+// Load and switch
+await i18n.setLocaleAsync(&#39;es&#39;)
+console.log(i18n.isLocaleLoaded(&#39;es&#39;))  // true
+</code></pre>
+<h2>Variations</h2>
+<h3>Static Imports with Code Splitting</h3>
+<p>Use dynamic imports for bundler-based code splitting:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: await import(&#39;./locales/en.json&#39;)
+  },
+  loadPath: async (locale) =&gt; {
+    // Bundler will create separate chunks for each locale
+    const module = await import(`./locales/${locale}.json`)
+    return module.default
+  }
+})
+</code></pre>
+<h3>Caching Behavior</h3>
+<p>Loaded translations are cached automatically:</p>
+<pre><code class="language-typescript">// First call: fetches from server
+await i18n.loadLocale(&#39;de&#39;)
+
+// Second call: returns immediately (cached)
+await i18n.loadLocale(&#39;de&#39;)
+
+// Force reload to get fresh translations
+await i18n.loadLocale(&#39;de&#39;, { forceReload: true })
+</code></pre>
+<h3>Concurrent Loading</h3>
+<p>Multiple <code>loadLocale()</code> calls for the same locale are deduplicated:</p>
+<pre><code class="language-typescript">// Only one network request is made
+const [result1, result2] = await Promise.all([
+  i18n.loadLocale(&#39;es&#39;),
+  i18n.loadLocale(&#39;es&#39;)
+])
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Error: loadPath not configured</h3>
+<p><strong>Symptom:</strong> <code>loadLocale()</code> throws an error.</p>
+<p><strong>Cause:</strong> You didn&#39;t provide a <code>loadPath</code> function when creating the instance.</p>
+<p><strong>Solution:</strong> Add <code>loadPath</code> to your configuration:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  loadPath: async (locale) =&gt; {
+    // Your loading logic here
+  }
+})
+</code></pre>
+<h3>TypeError: loadPath must return an object</h3>
+<p><strong>Symptom:</strong> Loading fails with a TypeError.</p>
+<p><strong>Cause:</strong> Your <code>loadPath</code> function returned invalid data (null, array, string).</p>
+<p><strong>Solution:</strong> Ensure you return a plain object:</p>
+<pre><code class="language-typescript">loadPath: async (locale) =&gt; {
+  const response = await fetch(`/locales/${locale}.json`)
+  const data = await response.json()
+
+  // Make sure it&#39;s an object
+  if (typeof data !== &#39;object&#39; || Array.isArray(data)) {
+    throw new Error(&#39;Invalid translation data&#39;)
+  }
+
+  return data
+}
+</code></pre>
+<h3>Loading the Same Locale Multiple Times</h3>
+<p><strong>Symptom:</strong> Network requests happen repeatedly for the same locale.</p>
+<p><strong>Cause:</strong> You might be using <code>forceReload</code> unintentionally.</p>
+<p><strong>Solution:</strong> Use the default caching behavior:</p>
+<pre><code class="language-typescript">// Cached (default)
+await i18n.loadLocale(&#39;es&#39;)
+
+// Only use forceReload when you need fresh data
+await i18n.loadLocale(&#39;es&#39;, { forceReload: true })
+</code></pre>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-locale-management.html">Locale Management Concept</a></strong> - How locales work</li>
+<li><strong><a href="guide-changing-locales.html">Changing Locales Guide</a></strong> - Runtime locale switching</li>
+<li><strong><a href="api-translation-management.html">Translation Management API</a></strong> - Full <code>loadLocale()</code> documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

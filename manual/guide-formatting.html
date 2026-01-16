@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formatting Numbers, Dates, and Times - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Formatting Numbers, Dates, and Times</h1>
+<p>This guide shows you how to display numbers, dates, and relative times in locale-appropriate formats. You&#39;ll learn to use the built-in formatting methods and customize their output.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-locale-management.html">Understand locale management</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll format values by:</p>
+<ol>
+<li>Formatting numbers with <code>formatNumber()</code></li>
+<li>Formatting dates with <code>formatDate()</code></li>
+<li>Showing relative time with <code>formatRelativeTime()</code></li>
+<li>Customizing format options</li>
+</ol>
+<h2>Step 1: Format Numbers</h2>
+<p>Use <code>formatNumber()</code> for locale-appropriate number display:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+// Basic number formatting
+i18n.formatNumber(1234567.89)  // &quot;1,234,567.89&quot;
+
+// Switch to German
+i18n.setLocale(&#39;de-DE&#39;)
+i18n.formatNumber(1234567.89)  // &quot;1.234.567,89&quot;
+</code></pre>
+<p>Different locales use different separators for thousands and decimals.</p>
+<h2>Step 2: Format Currencies and Percentages</h2>
+<p>Pass options to customize the format:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+// Currency
+i18n.formatNumber(99.99, {
+  style: &#39;currency&#39;,
+  currency: &#39;USD&#39;
+})
+// &quot;$99.99&quot;
+
+// Percentage
+i18n.formatNumber(0.156, {
+  style: &#39;percent&#39;
+})
+// &quot;16%&quot;
+
+// Percentage with decimals
+i18n.formatNumber(0.156, {
+  style: &#39;percent&#39;,
+  minimumFractionDigits: 1
+})
+// &quot;15.6%&quot;
+</code></pre>
+<h2>Step 3: Format Dates</h2>
+<p>Use <code>formatDate()</code> with Date objects, timestamps, or ISO strings:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+const date = new Date(&#39;2024-03-15T14:30:00&#39;)
+
+// Default format
+i18n.formatDate(date)
+// &quot;3/15/2024&quot;
+
+// With time
+i18n.formatDate(date, {
+  dateStyle: &#39;medium&#39;,
+  timeStyle: &#39;short&#39;
+})
+// &quot;Mar 15, 2024, 2:30 PM&quot;
+
+// Full format
+i18n.formatDate(date, {
+  weekday: &#39;long&#39;,
+  year: &#39;numeric&#39;,
+  month: &#39;long&#39;,
+  day: &#39;numeric&#39;
+})
+// &quot;Friday, March 15, 2024&quot;
+</code></pre>
+<h2>Step 4: Format Relative Time</h2>
+<p>Use <code>formatRelativeTime()</code> for human-friendly time differences:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en&#39; })
+
+// Past (negative values)
+i18n.formatRelativeTime(-1, &#39;day&#39;)     // &quot;1 day ago&quot;
+i18n.formatRelativeTime(-3, &#39;hour&#39;)    // &quot;3 hours ago&quot;
+i18n.formatRelativeTime(-5, &#39;minute&#39;)  // &quot;5 minutes ago&quot;
+
+// Future (positive values)
+i18n.formatRelativeTime(1, &#39;day&#39;)      // &quot;in 1 day&quot;
+i18n.formatRelativeTime(2, &#39;week&#39;)     // &quot;in 2 weeks&quot;
+i18n.formatRelativeTime(3, &#39;month&#39;)    // &quot;in 3 months&quot;
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+// Product pricing
+function formatPrice(amount: number, currency: string): string {
+  return i18n.formatNumber(amount, {
+    style: &#39;currency&#39;,
+    currency
+  })
+}
+
+console.log(formatPrice(1299.99, &#39;USD&#39;))  // &quot;$1,299.99&quot;
+console.log(formatPrice(1299.99, &#39;EUR&#39;))  // &quot;€1,299.99&quot;
+
+// Order dates
+function formatOrderDate(date: Date): string {
+  return i18n.formatDate(date, {
+    year: &#39;numeric&#39;,
+    month: &#39;short&#39;,
+    day: &#39;numeric&#39;
+  })
+}
+
+console.log(formatOrderDate(new Date()))  // &quot;Jan 15, 2024&quot;
+
+// Last seen
+function formatLastSeen(date: Date): string {
+  const now = new Date()
+  const diffMs = date.getTime() - now.getTime()
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+
+  if (Math.abs(diffDays) &lt; 1) {
+    const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+    return i18n.formatRelativeTime(diffHours, &#39;hour&#39;)
+  }
+
+  return i18n.formatRelativeTime(diffDays, &#39;day&#39;)
+}
+
+const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+console.log(formatLastSeen(yesterday))  // &quot;1 day ago&quot;
+
+// Switch locale and see different formats
+i18n.setLocale(&#39;de-DE&#39;)
+console.log(formatPrice(1299.99, &#39;EUR&#39;))  // &quot;1.299,99 €&quot;
+console.log(formatOrderDate(new Date()))   // &quot;15. Jan. 2024&quot;
+console.log(i18n.formatRelativeTime(-1, &#39;day&#39;))  // &quot;vor 1 Tag&quot;
+</code></pre>
+<h2>Variations</h2>
+<h3>Compact Number Notation</h3>
+<p>Show large numbers in compact form:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+i18n.formatNumber(1500, { notation: &#39;compact&#39; })      // &quot;1.5K&quot;
+i18n.formatNumber(1500000, { notation: &#39;compact&#39; })   // &quot;1.5M&quot;
+i18n.formatNumber(1500000000, { notation: &#39;compact&#39; }) // &quot;1.5B&quot;
+</code></pre>
+<h3>Date Parts</h3>
+<p>Get just the parts you need:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+const date = new Date(&#39;2024-03-15&#39;)
+
+// Just the month and year
+i18n.formatDate(date, { month: &#39;long&#39;, year: &#39;numeric&#39; })
+// &quot;March 2024&quot;
+
+// Just the time
+i18n.formatDate(date, { hour: &#39;numeric&#39;, minute: &#39;2-digit&#39; })
+// &quot;12:00 AM&quot;
+
+// Just the weekday
+i18n.formatDate(date, { weekday: &#39;long&#39; })
+// &quot;Friday&quot;
+</code></pre>
+<h3>Unit Formatting</h3>
+<p>Format numbers with units:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+i18n.formatNumber(100, {
+  style: &#39;unit&#39;,
+  unit: &#39;kilometer&#39;
+})
+// &quot;100 km&quot;
+
+i18n.formatNumber(25, {
+  style: &#39;unit&#39;,
+  unit: &#39;celsius&#39;
+})
+// &quot;25°C&quot;
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>TypeError: value must be a number</h3>
+<p><strong>Symptom:</strong> <code>formatNumber()</code> throws a TypeError.</p>
+<p><strong>Cause:</strong> You passed a string instead of a number.</p>
+<p><strong>Solution:</strong> Convert to number first:</p>
+<pre><code class="language-typescript">// Wrong
+i18n.formatNumber(&#39;1234&#39;)
+
+// Right
+i18n.formatNumber(parseFloat(&#39;1234&#39;))
+i18n.formatNumber(Number(&#39;1234&#39;))
+</code></pre>
+<h3>TypeError: value must be a valid date</h3>
+<p><strong>Symptom:</strong> <code>formatDate()</code> throws a TypeError.</p>
+<p><strong>Cause:</strong> You passed an invalid date string or object.</p>
+<p><strong>Solution:</strong> Ensure the date is valid:</p>
+<pre><code class="language-typescript">// Wrong - invalid date string
+i18n.formatDate(&#39;not-a-date&#39;)
+
+// Right
+i18n.formatDate(new Date(&#39;2024-03-15&#39;))
+i18n.formatDate(Date.now())  // Timestamp
+i18n.formatDate(&#39;2024-03-15T14:30:00Z&#39;)  // ISO string
+</code></pre>
+<h3>RangeError: Invalid unit</h3>
+<p><strong>Symptom:</strong> <code>formatRelativeTime()</code> throws a RangeError.</p>
+<p><strong>Cause:</strong> You passed an invalid unit.</p>
+<p><strong>Solution:</strong> Use a valid unit from the list:</p>
+<pre><code class="language-typescript">// Valid units
+&#39;second&#39; | &#39;minute&#39; | &#39;hour&#39; | &#39;day&#39; | &#39;week&#39; | &#39;month&#39; | &#39;year&#39;
+
+// Wrong
+i18n.formatRelativeTime(5, &#39;days&#39;)  // Plural not allowed
+
+// Right
+i18n.formatRelativeTime(5, &#39;day&#39;)
+</code></pre>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-formatting.html">Formatting Concept</a></strong> - How formatting works</li>
+<li><strong><a href="api-formatting.html">Formatting API</a></strong> - Full method documentation</li>
+<li><strong><a href="guide-changing-locales.html">Changing Locales Guide</a></strong> - How locale affects formatting</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

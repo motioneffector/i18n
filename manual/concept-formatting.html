@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formatting Utilities - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Formatting Utilities</h1>
+<p>Numbers, dates, and relative times need locale-specific formatting. Instead of adding external libraries, use the built-in formatting methods that wrap the browser&#39;s <code>Intl</code> APIs and automatically respect the current locale.</p>
+<h2>How It Works</h2>
+<p>The i18n instance provides three formatting methods:</p>
+<ul>
+<li><code>formatNumber()</code> - Uses <code>Intl.NumberFormat</code> for numbers, currencies, percentages</li>
+<li><code>formatDate()</code> - Uses <code>Intl.DateTimeFormat</code> for dates and times</li>
+<li><code>formatRelativeTime()</code> - Uses <code>Intl.RelativeTimeFormat</code> for &quot;3 days ago&quot; style text</li>
+</ul>
+<p>Each method uses the current locale automatically. When you switch locales, formatting changes too:</p>
+<pre><code>Locale: en-US  -&gt;  formatNumber(1234.5)  -&gt;  &quot;1,234.5&quot;
+Locale: de-DE  -&gt;  formatNumber(1234.5)  -&gt;  &quot;1.234,5&quot;
+</code></pre>
+<h2>Basic Usage</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+// Numbers
+i18n.formatNumber(1234567.89)                    // &quot;1,234,567.89&quot;
+i18n.formatNumber(0.75, { style: &#39;percent&#39; })    // &quot;75%&quot;
+i18n.formatNumber(99.99, {
+  style: &#39;currency&#39;,
+  currency: &#39;USD&#39;
+})                                               // &quot;$99.99&quot;
+
+// Dates
+i18n.formatDate(new Date())                      // &quot;1/15/2024&quot;
+i18n.formatDate(new Date(), {
+  weekday: &#39;long&#39;,
+  year: &#39;numeric&#39;,
+  month: &#39;long&#39;,
+  day: &#39;numeric&#39;
+})                                               // &quot;Monday, January 15, 2024&quot;
+
+// Relative time
+i18n.formatRelativeTime(-1, &#39;day&#39;)               // &quot;1 day ago&quot;
+i18n.formatRelativeTime(3, &#39;hour&#39;)               // &quot;in 3 hours&quot;
+</code></pre>
+<h2>Key Points</h2>
+<ul>
+<li><strong>Uses current locale automatically</strong> - No need to pass locale to each call</li>
+<li><strong>Accepts <code>Intl</code> options</strong> - Full power of <code>Intl.NumberFormat</code> and <code>Intl.DateTimeFormat</code></li>
+<li><strong>Date accepts multiple types</strong> - <code>Date</code> objects, timestamps (numbers), or ISO strings</li>
+<li><strong>Relative time is directional</strong> - Negative = past, positive = future</li>
+</ul>
+<h2>Examples</h2>
+<h3>Currency Formatting</h3>
+<p>Format prices for different locales:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+
+const price = 1299.99
+
+// US format
+i18n.formatNumber(price, { style: &#39;currency&#39;, currency: &#39;USD&#39; })
+// &quot;$1,299.99&quot;
+
+// Switch to German
+i18n.setLocale(&#39;de-DE&#39;)
+i18n.formatNumber(price, { style: &#39;currency&#39;, currency: &#39;EUR&#39; })
+// &quot;1.299,99 €&quot;
+</code></pre>
+<h3>Date Styles</h3>
+<p>Different levels of detail for dates:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en-US&#39; })
+const date = new Date(&#39;2024-03-15T14:30:00&#39;)
+
+// Short
+i18n.formatDate(date, { dateStyle: &#39;short&#39; })
+// &quot;3/15/24&quot;
+
+// Medium
+i18n.formatDate(date, { dateStyle: &#39;medium&#39; })
+// &quot;Mar 15, 2024&quot;
+
+// Full with time
+i18n.formatDate(date, {
+  dateStyle: &#39;full&#39;,
+  timeStyle: &#39;short&#39;
+})
+// &quot;Friday, March 15, 2024 at 2:30 PM&quot;
+</code></pre>
+<h3>Relative Time</h3>
+<p>Show human-friendly time differences:</p>
+<pre><code class="language-typescript">const i18n = createI18n({ defaultLocale: &#39;en&#39; })
+
+i18n.formatRelativeTime(-5, &#39;minute&#39;)   // &quot;5 minutes ago&quot;
+i18n.formatRelativeTime(-1, &#39;hour&#39;)     // &quot;1 hour ago&quot;
+i18n.formatRelativeTime(-3, &#39;day&#39;)      // &quot;3 days ago&quot;
+i18n.formatRelativeTime(1, &#39;week&#39;)      // &quot;in 1 week&quot;
+i18n.formatRelativeTime(2, &#39;month&#39;)     // &quot;in 2 months&quot;
+
+// In German
+i18n.setLocale(&#39;de&#39;)
+i18n.formatRelativeTime(-1, &#39;day&#39;)      // &quot;vor 1 Tag&quot;
+</code></pre>
+<h2>Supported Units for Relative Time</h2>
+<table>
+<thead>
+<tr>
+<th>Unit</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>second</code></td>
+<td>&quot;5 seconds ago&quot;</td>
+</tr>
+<tr>
+<td><code>minute</code></td>
+<td>&quot;in 3 minutes&quot;</td>
+</tr>
+<tr>
+<td><code>hour</code></td>
+<td>&quot;2 hours ago&quot;</td>
+</tr>
+<tr>
+<td><code>day</code></td>
+<td>&quot;in 1 day&quot;</td>
+</tr>
+<tr>
+<td><code>week</code></td>
+<td>&quot;3 weeks ago&quot;</td>
+</tr>
+<tr>
+<td><code>month</code></td>
+<td>&quot;in 6 months&quot;</td>
+</tr>
+<tr>
+<td><code>year</code></td>
+<td>&quot;2 years ago&quot;</td>
+</tr>
+</tbody></table>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="guide-formatting.html">Formatting Guide</a></strong> - Step-by-step guide with more examples</li>
+<li><strong><a href="api-formatting.html">Formatting API</a></strong> - Full method documentation with all options</li>
+<li><strong><a href="concept-locale-management.html">Locale Management</a></strong> - How locale affects formatting</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

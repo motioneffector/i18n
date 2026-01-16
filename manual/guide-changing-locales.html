@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changing Locales - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Changing Locales</h1>
+<p>This guide shows you how to switch languages at runtime and react to locale changes. You&#39;ll learn synchronous and asynchronous switching, fallback configuration, and UI update patterns.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-translation.html">Have a working i18n instance</a></li>
+<li><a href="concept-locale-management.html">Understand locale management basics</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll implement locale switching by:</p>
+<ol>
+<li>Setting up multiple locales</li>
+<li>Switching with <code>setLocale()</code></li>
+<li>Subscribing to changes with <code>onChange</code></li>
+<li>Configuring fallback behavior</li>
+</ol>
+<h2>Step 1: Define Multiple Locales</h2>
+<p>Include translations for each supported language:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      greeting: &#39;Hello&#39;,
+      farewell: &#39;Goodbye&#39;,
+      buttons: {
+        save: &#39;Save&#39;,
+        cancel: &#39;Cancel&#39;
+      }
+    },
+    es: {
+      greeting: &#39;Hola&#39;,
+      farewell: &#39;Adiós&#39;,
+      buttons: {
+        save: &#39;Guardar&#39;,
+        cancel: &#39;Cancelar&#39;
+      }
+    },
+    fr: {
+      greeting: &#39;Bonjour&#39;,
+      farewell: &#39;Au revoir&#39;,
+      buttons: {
+        save: &#39;Sauvegarder&#39;,
+        cancel: &#39;Annuler&#39;
+      }
+    }
+  }
+})
+</code></pre>
+<h2>Step 2: Switch Locales</h2>
+<p>Use <code>setLocale()</code> to change the current language:</p>
+<pre><code class="language-typescript">// Check current locale
+console.log(i18n.getLocale())  // &quot;en&quot;
+console.log(i18n.t(&#39;greeting&#39;))  // &quot;Hello&quot;
+
+// Switch to Spanish
+i18n.setLocale(&#39;es&#39;)
+console.log(i18n.getLocale())  // &quot;es&quot;
+console.log(i18n.t(&#39;greeting&#39;))  // &quot;Hola&quot;
+
+// Switch to French
+i18n.setLocale(&#39;fr&#39;)
+console.log(i18n.t(&#39;greeting&#39;))  // &quot;Bonjour&quot;
+</code></pre>
+<p><code>setLocale()</code> returns the i18n instance for chaining:</p>
+<pre><code class="language-typescript">const greeting = i18n.setLocale(&#39;es&#39;).t(&#39;greeting&#39;)  // &quot;Hola&quot;
+</code></pre>
+<h2>Step 3: React to Locale Changes</h2>
+<p>Subscribe to <code>onChange</code> to update your UI when the locale changes:</p>
+<pre><code class="language-typescript">// Subscribe
+const unsubscribe = i18n.onChange((newLocale, previousLocale) =&gt; {
+  console.log(`Language changed: ${previousLocale} -&gt; ${newLocale}`)
+
+  // Update your UI here
+  document.documentElement.lang = newLocale
+  renderApp()
+})
+
+// Trigger a change
+i18n.setLocale(&#39;es&#39;)
+// Logs: &quot;Language changed: en -&gt; es&quot;
+
+// Later, unsubscribe when no longer needed
+unsubscribe()
+</code></pre>
+<h2>Step 4: Configure Fallback</h2>
+<p>Use <code>fallbackLocale</code> to handle missing translations gracefully:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;de&#39;,
+  fallbackLocale: &#39;en&#39;,  // Use English when German is missing
+  translations: {
+    en: {
+      greeting: &#39;Hello&#39;,
+      newFeature: &#39;Check out this new feature!&#39;
+    },
+    de: {
+      greeting: &#39;Hallo&#39;
+      // &#39;newFeature&#39; not translated yet
+    }
+  }
+})
+
+i18n.t(&#39;greeting&#39;)     // &quot;Hallo&quot; (found in German)
+i18n.t(&#39;newFeature&#39;)   // &quot;Check out this new feature!&quot; (falls back to English)
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+// Create i18n with multiple locales
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      nav: { home: &#39;Home&#39;, about: &#39;About&#39;, contact: &#39;Contact&#39; },
+      welcome: &#39;Welcome to our site!&#39;,
+      language: &#39;Language&#39;
+    },
+    es: {
+      nav: { home: &#39;Inicio&#39;, about: &#39;Acerca de&#39;, contact: &#39;Contacto&#39; },
+      welcome: &#39;¡Bienvenido a nuestro sitio!&#39;,
+      language: &#39;Idioma&#39;
+    }
+  }
+})
+
+// Track current locale in DOM
+function updateDocumentLang(locale: string) {
+  document.documentElement.lang = locale
+}
+
+// Subscribe to changes
+i18n.onChange((newLocale) =&gt; {
+  updateDocumentLang(newLocale)
+  console.log(&#39;UI should re-render now&#39;)
+})
+
+// Language selector handler
+function handleLanguageChange(newLocale: string) {
+  if (i18n.getAvailableLocales().includes(newLocale)) {
+    i18n.setLocale(newLocale)
+  } else {
+    console.error(`Locale ${newLocale} is not available`)
+  }
+}
+
+// Usage
+handleLanguageChange(&#39;es&#39;)
+console.log(i18n.t(&#39;welcome&#39;))  // &quot;¡Bienvenido a nuestro sitio!&quot;
+</code></pre>
+<h2>Variations</h2>
+<h3>Persisting User Preference</h3>
+<p>Save the user&#39;s language choice to localStorage:</p>
+<pre><code class="language-typescript">// On app start, restore saved locale
+const savedLocale = localStorage.getItem(&#39;locale&#39;)
+if (savedLocale &amp;&amp; i18n.getAvailableLocales().includes(savedLocale)) {
+  i18n.setLocale(savedLocale)
+}
+
+// When locale changes, save it
+i18n.onChange((newLocale) =&gt; {
+  localStorage.setItem(&#39;locale&#39;, newLocale)
+})
+</code></pre>
+<h3>Detecting Browser Language</h3>
+<p>Set initial locale based on browser preference:</p>
+<pre><code class="language-typescript">function detectLocale(): string {
+  const browserLocales = navigator.languages || [navigator.language]
+  const available = i18n.getAvailableLocales()
+
+  for (const locale of browserLocales) {
+    // Try exact match first (e.g., &#39;en-US&#39;)
+    if (available.includes(locale)) {
+      return locale
+    }
+    // Try language only (e.g., &#39;en&#39;)
+    const lang = locale.split(&#39;-&#39;)[0]
+    if (available.includes(lang)) {
+      return lang
+    }
+  }
+
+  return &#39;en&#39;  // Default fallback
+}
+
+i18n.setLocale(detectLocale())
+</code></pre>
+<h3>Async Loading Before Switch</h3>
+<p>If translations need to be loaded, use <code>setLocaleAsync()</code>:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: { hello: &#39;Hello&#39; } },
+  loadPath: async (locale) =&gt; {
+    const response = await fetch(`/locales/${locale}.json`)
+    return response.json()
+  }
+})
+
+// This loads translations if needed, then switches
+await i18n.setLocaleAsync(&#39;es&#39;)
+console.log(i18n.t(&#39;hello&#39;))
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Error: No translations available for locale</h3>
+<p><strong>Symptom:</strong> <code>setLocale()</code> throws an error.</p>
+<p><strong>Cause:</strong> The locale doesn&#39;t exist and there&#39;s no fallback configured.</p>
+<p><strong>Solution:</strong> Either add translations for the locale, configure a <code>fallbackLocale</code>, or use <code>setLocaleAsync()</code> with <code>loadPath</code>:</p>
+<pre><code class="language-typescript">// Option 1: Add translations first
+i18n.addTranslations(&#39;de&#39;, { hello: &#39;Hallo&#39; })
+i18n.setLocale(&#39;de&#39;)
+
+// Option 2: Configure fallback
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,  // Now any locale is allowed
+  translations: { en: { hello: &#39;Hello&#39; } }
+})
+</code></pre>
+<h3>onChange Not Firing</h3>
+<p><strong>Symptom:</strong> Your callback isn&#39;t called when you switch locales.</p>
+<p><strong>Cause:</strong> You&#39;re setting the locale to its current value.</p>
+<p><strong>Solution:</strong> <code>onChange</code> only fires when the locale actually changes:</p>
+<pre><code class="language-typescript">i18n.setLocale(&#39;en&#39;)  // Already &#39;en&#39;, no change, callback not fired
+i18n.setLocale(&#39;es&#39;)  // Different locale, callback fires
+</code></pre>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-locale-management.html">Locale Management Concept</a></strong> - How locales work</li>
+<li><strong><a href="guide-lazy-loading.html">Lazy Loading Guide</a></strong> - Load translations on demand</li>
+<li><strong><a href="api-locale-management.html">Locale Management API</a></strong> - Full method documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

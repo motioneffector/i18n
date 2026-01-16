@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Callbacks API - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Event Callbacks API</h1>
+<p>Methods for subscribing to events and configuring behavior.</p>
+<hr>
+<h2><code>onChange()</code></h2>
+<p>Subscribes to locale change events.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function onChange(callback: ChangeCallback): () =&gt; void
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>callback</code></td>
+<td><code>ChangeCallback</code></td>
+<td>Yes</td>
+<td>Function called when locale changes</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>() =&gt; void</code> — Unsubscribe function.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: {}, es: {} }
+})
+
+// Subscribe
+const unsubscribe = i18n.onChange((newLocale, prevLocale) =&gt; {
+  console.log(`Changed from ${prevLocale} to ${newLocale}`)
+  document.documentElement.lang = newLocale
+})
+
+i18n.setLocale(&#39;es&#39;)
+// Console: &quot;Changed from en to es&quot;
+
+// Unsubscribe when done
+unsubscribe()
+
+i18n.setLocale(&#39;en&#39;)
+// No console output - unsubscribed
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>callback</code> is not a function</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Callbacks fire in registration order</li>
+<li>Does not fire when setting locale to current value</li>
+<li>Does not fire when adding translations (only locale changes)</li>
+<li>Multiple callbacks can be registered</li>
+<li>Callback errors are caught and logged, don&#39;t affect other callbacks</li>
+</ul>
+<hr>
+<h2><code>onMissing()</code></h2>
+<p>Subscribes to missing translation events.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function onMissing(callback: MissingCallback): () =&gt; void
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>callback</code></td>
+<td><code>MissingCallback</code></td>
+<td>Yes</td>
+<td>Function called when a translation is missing</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>() =&gt; void</code> — Unsubscribe function.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  fallbackLocale: &#39;en&#39;,
+  translations: {
+    en: { hello: &#39;Hello&#39; },
+    de: {}  // Empty
+  }
+})
+
+// Subscribe
+const unsubscribe = i18n.onMissing((key, locale) =&gt; {
+  console.warn(`Missing: &quot;${key}&quot; in &quot;${locale}&quot;`)
+})
+
+i18n.t(&#39;hello&#39;)     // &quot;Hello&quot; - no callback
+i18n.t(&#39;missing&#39;)   // &quot;missing&quot; - callback fires
+// Console: Missing: &quot;missing&quot; in &quot;en&quot;
+
+i18n.setLocale(&#39;de&#39;)
+i18n.t(&#39;hello&#39;)     // &quot;Hello&quot; (fallback) - callback still fires!
+// Console: Missing: &quot;hello&quot; in &quot;de&quot;
+
+// Unsubscribe
+unsubscribe()
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>callback</code> is not a function</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Fires when key is missing in current locale (even if found in fallback)</li>
+<li>Fires before the missing behavior (key/empty/throw) is applied</li>
+<li>Multiple callbacks can be registered</li>
+<li>Callback errors are caught and logged</li>
+</ul>
+<hr>
+<h2><code>setMissingBehavior()</code></h2>
+<p>Configures what happens when a translation is missing.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function setMissingBehavior(behavior: MissingBehavior): I18n
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>behavior</code></td>
+<td><code>MissingBehavior</code></td>
+<td>Yes</td>
+<td>The behavior mode</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>I18n</code> — The i18n instance for chaining.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: { en: {} }
+})
+
+// &#39;key&#39; - Return the key itself (default)
+i18n.setMissingBehavior(&#39;key&#39;)
+i18n.t(&#39;missing.key&#39;)  // &quot;missing.key&quot;
+
+// &#39;empty&#39; - Return empty string
+i18n.setMissingBehavior(&#39;empty&#39;)
+i18n.t(&#39;missing.key&#39;)  // &quot;&quot;
+
+// &#39;throw&#39; - Throw an error
+i18n.setMissingBehavior(&#39;throw&#39;)
+i18n.t(&#39;missing.key&#39;)  // throws I18nError
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If <code>behavior</code> is not <code>&#39;key&#39;</code>, <code>&#39;empty&#39;</code>, or <code>&#39;throw&#39;</code></li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Default is <code>&#39;key&#39;</code></li>
+<li>Applied after checking fallback locale</li>
+<li><code>onMissing</code> callbacks fire before the behavior is applied</li>
+<li><code>&#39;throw&#39;</code> mode throws <code>I18nError</code> with message <code>&quot;Missing translation: {key}&quot;</code></li>
+</ul>
+<hr>
+<h2>Types</h2>
+<h3><code>ChangeCallback</code></h3>
+<p>Callback for locale change events.</p>
+<pre><code class="language-typescript">type ChangeCallback = (newLocale: string, prevLocale: string) =&gt; void
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>newLocale</code></td>
+<td><code>string</code></td>
+<td>The new current locale</td>
+</tr>
+<tr>
+<td><code>prevLocale</code></td>
+<td><code>string</code></td>
+<td>The previous locale</td>
+</tr>
+</tbody></table>
+<h3><code>MissingCallback</code></h3>
+<p>Callback for missing translation events.</p>
+<pre><code class="language-typescript">type MissingCallback = (key: string, locale: string) =&gt; void
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>key</code></td>
+<td><code>string</code></td>
+<td>The missing translation key</td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td><code>string</code></td>
+<td>The locale where the key was missing</td>
+</tr>
+</tbody></table>
+<h3><code>MissingBehavior</code></h3>
+<p>Behavior modes for missing translations.</p>
+<pre><code class="language-typescript">type MissingBehavior = &#39;key&#39; | &#39;empty&#39; | &#39;throw&#39;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#39;key&#39;</code></td>
+<td>Return the key string (default)</td>
+</tr>
+<tr>
+<td><code>&#39;empty&#39;</code></td>
+<td>Return empty string</td>
+</tr>
+<tr>
+<td><code>&#39;throw&#39;</code></td>
+<td>Throw an <code>I18nError</code></td>
+</tr>
+</tbody></table>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

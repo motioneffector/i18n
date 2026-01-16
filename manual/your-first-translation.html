@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your First Translation - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Your First Translation</h1>
+<p>This guide walks you through setting up internationalization in about 5 minutes.</p>
+<p>By the end, you&#39;ll have a working i18n instance that translates text with dynamic values and handles plural forms.</p>
+<h2>What We&#39;re Building</h2>
+<p>A simple translation system that:</p>
+<ul>
+<li>Displays a personalized greeting</li>
+<li>Shows item counts with correct singular/plural forms</li>
+<li>Can switch between English and Spanish</li>
+</ul>
+<h2>Step 1: Create an i18n Instance</h2>
+<p>Every translation starts with an i18n instance. Create one with your default locale and translations:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      greeting: &#39;Hello, {{name}}!&#39;,
+      items: {
+        one: &#39;{{count}} item in cart&#39;,
+        other: &#39;{{count}} items in cart&#39;
+      }
+    }
+  }
+})
+</code></pre>
+<p>The <code>translations</code> object maps locale codes to translation dictionaries. Each dictionary contains your translation keys and their values.</p>
+<h2>Step 2: Translate with Interpolation</h2>
+<p>Use the <code>t()</code> function to translate keys. Pass dynamic values as the second argument:</p>
+<pre><code class="language-typescript">const message = i18n.t(&#39;greeting&#39;, { name: &#39;Alice&#39; })
+console.log(message)  // &quot;Hello, Alice!&quot;
+</code></pre>
+<p>The <code>{{name}}</code> placeholder gets replaced with the value you provide. You can use as many placeholders as you need.</p>
+<h2>Step 3: Handle Pluralization</h2>
+<p>For counts, pass a <code>count</code> parameter. The library automatically selects the correct plural form:</p>
+<pre><code class="language-typescript">console.log(i18n.t(&#39;items&#39;, { count: 1 }))  // &quot;1 item in cart&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 3 }))  // &quot;3 items in cart&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 0 }))  // &quot;0 items in cart&quot;
+</code></pre>
+<p>English uses <code>one</code> for exactly 1 and <code>other</code> for everything else. Other languages have more forms like <code>zero</code>, <code>two</code>, <code>few</code>, and <code>many</code>.</p>
+<h2>Step 4: Add Another Locale</h2>
+<p>Add Spanish translations and switch locales:</p>
+<pre><code class="language-typescript">i18n.addTranslations(&#39;es&#39;, {
+  greeting: &#39;¡Hola, {{name}}!&#39;,
+  items: {
+    one: &#39;{{count}} artículo en el carrito&#39;,
+    other: &#39;{{count}} artículos en el carrito&#39;
+  }
+})
+
+i18n.setLocale(&#39;es&#39;)
+console.log(i18n.t(&#39;greeting&#39;, { name: &#39;Alice&#39; }))  // &quot;¡Hola, Alice!&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 2 }))  // &quot;2 artículos en el carrito&quot;
+</code></pre>
+<h2>The Complete Code</h2>
+<p>Here&#39;s everything together:</p>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+// Create i18n instance with English translations
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      greeting: &#39;Hello, {{name}}!&#39;,
+      items: {
+        one: &#39;{{count}} item in cart&#39;,
+        other: &#39;{{count}} items in cart&#39;
+      }
+    }
+  }
+})
+
+// Basic usage
+console.log(i18n.t(&#39;greeting&#39;, { name: &#39;Alice&#39; }))  // &quot;Hello, Alice!&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 1 }))          // &quot;1 item in cart&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 5 }))          // &quot;5 items in cart&quot;
+
+// Add Spanish and switch
+i18n.addTranslations(&#39;es&#39;, {
+  greeting: &#39;¡Hola, {{name}}!&#39;,
+  items: {
+    one: &#39;{{count}} artículo en el carrito&#39;,
+    other: &#39;{{count}} artículos en el carrito&#39;
+  }
+})
+
+i18n.setLocale(&#39;es&#39;)
+console.log(i18n.t(&#39;greeting&#39;, { name: &#39;Alice&#39; }))  // &quot;¡Hola, Alice!&quot;
+console.log(i18n.t(&#39;items&#39;, { count: 2 }))          // &quot;2 artículos en el carrito&quot;
+</code></pre>
+<h2>What&#39;s Next?</h2>
+<p>Now that you have the basics:</p>
+<ul>
+<li><strong><a href="concept-translation-keys.html">Understand translation keys better</a></strong> - Learn about dot notation and namespaces</li>
+<li><strong><a href="guide-pluralization.html">Handle complex pluralization</a></strong> - Support languages with multiple plural forms</li>
+<li><strong><a href="guide-lazy-loading.html">Load translations on demand</a></strong> - Reduce bundle size with lazy loading</li>
+<li><strong><a href="api-core.html">Explore the API</a></strong> - Full reference when you need details</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

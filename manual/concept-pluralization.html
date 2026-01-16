@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pluralization - @motioneffector/i18n</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/i18n</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/i18n" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/i18n" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/i18n</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-translation.html">Your First Translation</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-translation-keys.html">Translation Keys &amp; Namespaces</a></li>
+<li><a href="concept-interpolation.html">Interpolation</a></li>
+<li><a href="concept-pluralization.html">Pluralization</a></li>
+<li><a href="concept-locale-management.html">Locale Management</a></li>
+<li><a href="concept-formatting.html">Formatting Utilities</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-using-interpolation.html">Using Interpolation</a></li>
+<li><a href="guide-pluralization.html">Pluralization</a></li>
+<li><a href="guide-changing-locales.html">Changing Locales</a></li>
+<li><a href="guide-lazy-loading.html">Lazy Loading Translations</a></li>
+<li><a href="guide-namespaces.html">Organizing with Namespaces</a></li>
+<li><a href="guide-formatting.html">Formatting Numbers, Dates, and Times</a></li>
+<li><a href="guide-missing-translations.html">Handling Missing Translations</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-core.html">Core API</a></li>
+<li><a href="api-locale-management.html">Locale Management API</a></li>
+<li><a href="api-translation-management.html">Translation Management API</a></li>
+<li><a href="api-events.html">Event Callbacks API</a></li>
+<li><a href="api-formatting.html">Formatting API</a></li>
+<li><a href="api-types.html">Types Reference</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Pluralization</h1>
+<p>Pluralization automatically selects the correct form of a word based on a count. Instead of writing <code>item + (count === 1 ? &#39;&#39; : &#39;s&#39;)</code>, you define plural forms in your translations and let the library pick the right one using the browser&#39;s <code>Intl.PluralRules</code> API.</p>
+<h2>How It Works</h2>
+<p>Pass <code>{ count: n }</code> to <code>t()</code>, and the library:</p>
+<ol>
+<li>Looks up the translation key</li>
+<li>Finds a plural object (with keys like <code>one</code>, <code>other</code>, <code>few</code>, <code>many</code>)</li>
+<li>Uses <code>Intl.PluralRules</code> to determine which form fits the count</li>
+<li>Returns that form with interpolation applied</li>
+</ol>
+<pre><code>Translation:  { one: &#39;{{count}} item&#39;, other: &#39;{{count}} items&#39; }
+t(&#39;key&#39;, { count: 1 })  -&gt;  Intl says &quot;one&quot;   -&gt;  &quot;1 item&quot;
+t(&#39;key&#39;, { count: 5 })  -&gt;  Intl says &quot;other&quot; -&gt;  &quot;5 items&quot;
+</code></pre>
+<h2>Basic Usage</h2>
+<pre><code class="language-typescript">import { createI18n } from &#39;@motioneffector/i18n&#39;
+
+const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      messages: {
+        one: &#39;You have {{count}} new message&#39;,
+        other: &#39;You have {{count}} new messages&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;messages&#39;, { count: 0 })   // &quot;You have 0 new messages&quot;
+i18n.t(&#39;messages&#39;, { count: 1 })   // &quot;You have 1 new message&quot;
+i18n.t(&#39;messages&#39;, { count: 42 })  // &quot;You have 42 new messages&quot;
+</code></pre>
+<h2>Key Points</h2>
+<ul>
+<li><strong>English uses <code>one</code> and <code>other</code></strong> - That&#39;s all you need for most English text</li>
+<li><strong><code>count</code> is available for interpolation</strong> - Use <code>{{count}}</code> in your plural strings</li>
+<li><strong>Falls back to <code>other</code></strong> - If a specific form is missing, <code>other</code> is used</li>
+<li><strong>Custom <code>zero</code> form</strong> - Define <code>zero</code> to show special text for count 0</li>
+<li><strong>Negative numbers work</strong> - Uses absolute value for rule selection, keeps negative in output</li>
+</ul>
+<h2>Examples</h2>
+<h3>Custom Zero Text</h3>
+<p>Show special text when count is zero:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      cart: {
+        zero: &#39;Your cart is empty&#39;,
+        one: &#39;{{count}} item in your cart&#39;,
+        other: &#39;{{count}} items in your cart&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;cart&#39;, { count: 0 })  // &quot;Your cart is empty&quot;
+i18n.t(&#39;cart&#39;, { count: 1 })  // &quot;1 item in your cart&quot;
+i18n.t(&#39;cart&#39;, { count: 3 })  // &quot;3 items in your cart&quot;
+</code></pre>
+<h3>Complex Languages (Russian)</h3>
+<p>Russian has <code>one</code>, <code>few</code>, <code>many</code>, and <code>other</code> forms:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;ru&#39;,
+  translations: {
+    ru: {
+      items: {
+        one: &#39;{{count}} предмет&#39;,      // 1, 21, 31...
+        few: &#39;{{count}} предмета&#39;,     // 2-4, 22-24...
+        many: &#39;{{count}} предметов&#39;,   // 0, 5-20, 25-30...
+        other: &#39;{{count}} предмета&#39;    // Fallback
+      }
+    }
+  }
+})
+
+i18n.t(&#39;items&#39;, { count: 1 })   // &quot;1 предмет&quot;
+i18n.t(&#39;items&#39;, { count: 2 })   // &quot;2 предмета&quot;
+i18n.t(&#39;items&#39;, { count: 5 })   // &quot;5 предметов&quot;
+i18n.t(&#39;items&#39;, { count: 21 })  // &quot;21 предмет&quot;
+</code></pre>
+<h3>Combining with Other Params</h3>
+<p>Pluralization works alongside regular interpolation:</p>
+<pre><code class="language-typescript">const i18n = createI18n({
+  defaultLocale: &#39;en&#39;,
+  translations: {
+    en: {
+      notifications: {
+        one: &#39;{{name}} has {{count}} notification&#39;,
+        other: &#39;{{name}} has {{count}} notifications&#39;
+      }
+    }
+  }
+})
+
+i18n.t(&#39;notifications&#39;, { name: &#39;Alice&#39;, count: 3 })
+// &quot;Alice has 3 notifications&quot;
+</code></pre>
+<h2>Plural Forms by Language</h2>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Forms Used</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>English, German, Spanish</td>
+<td><code>one</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>French, Portuguese</td>
+<td><code>one</code>, <code>other</code> (0 uses <code>one</code> in French)</td>
+</tr>
+<tr>
+<td>Russian, Polish</td>
+<td><code>one</code>, <code>few</code>, <code>many</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td><code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code>, <code>other</code></td>
+</tr>
+<tr>
+<td>Japanese, Chinese</td>
+<td><code>other</code> only</td>
+</tr>
+</tbody></table>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="guide-pluralization.html">Pluralization Guide</a></strong> - Step-by-step guide for implementing pluralization</li>
+<li><strong><a href="concept-interpolation.html">Interpolation</a></strong> - How placeholder replacement works</li>
+<li><strong><a href="api-core.html">Core API</a></strong> - Full <code>t()</code> function documentation</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
