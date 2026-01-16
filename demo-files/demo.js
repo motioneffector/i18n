@@ -1,12 +1,8 @@
-// ============================================
-// LIBRARY VERIFICATION
-// ============================================
+// Import library and expose globally for tests
+import * as Library from '../dist/index.js'
+window.Library = Library
 
-if (typeof window.Library === 'undefined' || typeof window.Library.createI18n !== 'function') {
-  throw new Error('window.Library.createI18n is not defined. Ensure the built library is loaded before demo.js')
-}
-
-const { createI18n } = window.Library
+const { createI18n } = Library
 
 // ============================================
 // DEMO DATA
