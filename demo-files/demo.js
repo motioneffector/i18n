@@ -1041,13 +1041,19 @@ testRunner.register('empty key returns empty string', () => {
   expect(i18n.t('')).toBe('')
 })
 
-document.getElementById('run-tests').addEventListener('click', async () => {
-  await testRunner.run()
-})
+// Note: The standard test-runner.js handles the run-all-tests button
+// This custom test runner is kept for backwards compatibility but the button ID check prevents errors
+const runTestsBtn = document.getElementById('run-tests')
+if (runTestsBtn) {
+  runTestsBtn.addEventListener('click', async () => {
+    await testRunner.run()
+  })
+}
 
-// Fuzz test runner
+// Fuzz test runner (only if button exists)
 let fuzzRunning = false
-document.getElementById('run-fuzz').addEventListener('click', async () => {
+const runFuzzBtn = document.getElementById('run-fuzz')
+if (runFuzzBtn) runFuzzBtn.addEventListener('click', async () => {
   if (fuzzRunning) return
   fuzzRunning = true
 
