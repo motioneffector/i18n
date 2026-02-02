@@ -1,6 +1,6 @@
 {
   "name": "@motioneffector/i18n",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Lightweight, type-safe internationalization library with zero dependencies for modern web applications",
   "author": "motioneffector",
   "license": "MIT",
