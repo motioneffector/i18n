@@ -6,7 +6,6 @@ A lightweight, type-safe internationalization library with zero dependencies for
 [![license](https://img.shields.io/npm/l/@motioneffector/i18n.svg)](https://github.com/motioneffector/i18n/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-**[Try the interactive demo →](https://motioneffector.github.io/i18n/)**
 
 ## Features
 
