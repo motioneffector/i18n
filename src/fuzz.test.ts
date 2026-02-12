@@ -352,13 +352,9 @@ describe('Fuzz: createI18n', () => {
         // If we get here, options were actually valid by accident
       } catch (e) {
         // Verify it's a proper error
-        if (!(e instanceof TypeError) && !(e instanceof Error)) {
-          throw new Error(`Wrong error type: ${e?.constructor?.name}`)
-        }
+        expect(e instanceof TypeError || e instanceof Error).toBe(true)
         // Verify error message exists and is descriptive
-        if (e instanceof Error && (!e.message || e.message.length === 0)) {
-          throw new Error('Empty error message')
-        }
+        expect((e as Error).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -370,16 +366,11 @@ describe('Fuzz: createI18n', () => {
       try {
         const i18n = createI18n({ defaultLocale: locale || 'en' })
         if (locale && locale.trim()) {
-          if (i18n.getLocale() !== (locale || 'en')) {
-            throw new Error(
-              `Locale mismatch: expected ${locale}, got ${i18n.getLocale()}`
-            )
-          }
+          expect(i18n.getLocale()).toBe(locale || 'en')
         }
       } catch (e) {
-        if (!(e instanceof TypeError)) {
-          throw new Error(`Unexpected error type: ${e?.constructor?.name}`)
-        }
+        expect(e).toBeInstanceOf(TypeError)
+        expect((e as TypeError).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -396,14 +387,10 @@ describe('Fuzz: createI18n', () => {
         createI18n(options)
 
         // Verify options unchanged
-        if (JSON.stringify(options) !== JSON.stringify(optionsCopy)) {
-          throw new Error('Options object was mutated')
-        }
+        expect(JSON.stringify(options)).toBe(JSON.stringify(optionsCopy))
       } catch (e) {
         // Acceptable if TypeError, but options still shouldn't be mutated
-        if (JSON.stringify(options) !== JSON.stringify(optionsCopy)) {
-          throw new Error('Options object was mutated even on error')
-        }
+        expect(JSON.stringify(options)).toBe(JSON.stringify(optionsCopy))
       }
     })
   })
@@ -422,13 +409,8 @@ describe('Fuzz: createI18n', () => {
         expect(typeof i18n.t('anything')).toBe('string')
       } catch (e) {
         // Stack overflow or other structural issues should be caught
-        if (e instanceof RangeError) {
-          // This is expected for very deep structures
-        } else if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e instanceof RangeError || e instanceof TypeError).toBe(true)
+        expect((e as Error).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -448,7 +430,7 @@ describe('Fuzz: i18n.t()', () => {
       },
     })
 
-    fuzzLoop((random, i) => {
+    const loopResult = fuzzLoop((random, i) => {
       const key = generateTranslationKey(random)
       const params =
         random() > 0.5 ? generateInterpolationParams(random) : undefined
@@ -456,22 +438,13 @@ describe('Fuzz: i18n.t()', () => {
       try {
         const result = i18n.t(key, params as InterpolationParams)
 
-        if (typeof result !== 'string') {
-          throw new Error(
-            `Expected string, got ${typeof result}: ${JSON.stringify(result)}`
-          )
-        }
-
-        // Verify no infinite loop (test should complete quickly)
+        expect(typeof result).toBe('string')
       } catch (e) {
         // Only TypeError is acceptable for invalid inputs
-        if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e).toBeInstanceOf(TypeError)
       }
     })
+    expect(loopResult.iterations).toBeGreaterThan(0)
   })
 
   it('never mutates params object', () => {
@@ -480,7 +453,7 @@ describe('Fuzz: i18n.t()', () => {
       translations: { en: { msg: 'Hello {{name}}' } },
     })
 
-    fuzzLoop((random, i) => {
+    const loopResult = fuzzLoop((random, i) => {
       const params = generateInterpolationParams(random)
       const paramsCopy = JSON.parse(JSON.stringify(params))
 
@@ -488,18 +461,13 @@ describe('Fuzz: i18n.t()', () => {
         i18n.t('msg', params as InterpolationParams)
 
         // Verify params unchanged
-        if (JSON.stringify(params) !== JSON.stringify(paramsCopy)) {
-          throw new Error('Params object was mutated')
-        }
+        expect(JSON.stringify(params)).toBe(JSON.stringify(paramsCopy))
       } catch (e) {
         // Acceptable if TypeError
-        if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e).toBeInstanceOf(TypeError)
       }
     })
+    expect(loopResult.iterations).toBeGreaterThan(0)
   })
 
   it('handles special keys without prototype pollution', () => {
@@ -508,7 +476,7 @@ describe('Fuzz: i18n.t()', () => {
       translations: { en: { safe: 'value' } },
     })
 
-    fuzzLoop((random, i) => {
+    const loopResult = fuzzLoop((random, i) => {
       const maliciousKey = generateMaliciousKey(random)
 
       try {
@@ -518,17 +486,12 @@ describe('Fuzz: i18n.t()', () => {
         expect(typeof result).toBe('string')
 
         // Verify Object.prototype not polluted
-        if ((Object.prototype as any).polluted) {
-          throw new Error('Prototype pollution detected!')
-        }
+        expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
       } catch (e) {
-        if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e).toBeInstanceOf(TypeError)
       }
     })
+    expect(loopResult.iterations).toBeGreaterThan(0)
   })
 
   it('completes within reasonable time', () => {
@@ -541,33 +504,24 @@ describe('Fuzz: i18n.t()', () => {
       },
     })
 
-    fuzzLoop((random, i) => {
+    const loopResult = fuzzLoop((random, i) => {
       const key = generateTranslationKey(random)
       const params = generateInterpolationParams(random)
 
       const startTime = Date.now()
 
       try {
-        i18n.t(key, params as InterpolationParams)
+        const result = i18n.t(key, params as InterpolationParams)
+        expect(typeof result).toBe('string')
 
         const elapsed = Date.now() - startTime
-        if (elapsed > 100) {
-          throw new Error(
-            `Translation took too long: ${elapsed}ms (should be < 100ms)`
-          )
-        }
+        expect(elapsed).toBeLessThan(100)
       } catch (e) {
         // Only TypeError acceptable
-        if (!(e instanceof TypeError)) {
-          const elapsed = Date.now() - startTime
-          if (elapsed > 100) {
-            throw new Error(
-              `Translation error took too long: ${elapsed}ms (should be < 100ms)`
-            )
-          }
-        }
+        expect(e).toBeInstanceOf(TypeError)
       }
     })
+    expect(loopResult.iterations).toBeGreaterThan(0)
   })
 
   it('handles extreme param values correctly', () => {
@@ -580,7 +534,7 @@ describe('Fuzz: i18n.t()', () => {
       },
     })
 
-    fuzzLoop((random, i) => {
+    const loopResult = fuzzLoop((random, i) => {
       const extremeValues = [
         0,
         -0,
@@ -599,7 +553,9 @@ describe('Fuzz: i18n.t()', () => {
       const result = i18n.t('msg', { value, count: value })
 
       expect(typeof result).toBe('string')
+      expect(result).toContain('Value:')
     })
+    expect(loopResult.iterations).toBeGreaterThan(0)
   })
 })
 
@@ -739,11 +695,8 @@ describe('Fuzz: addTranslations deep merge', () => {
         const result = i18n.t('anything')
         expect(typeof result).toBe('string')
       } catch (e) {
-        if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error during merge: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e).toBeInstanceOf(TypeError)
+        expect((e as TypeError).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -756,16 +709,10 @@ describe('Fuzz: addTranslations deep merge', () => {
         i18n.addTranslations('en', generateMaliciousTranslations(random) as any)
 
         // Verify Object.prototype not polluted
-        if ((Object.prototype as any).polluted) {
-          throw new Error('Prototype pollution detected!')
-        }
+        expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
       } catch (e) {
-        // TypeError is acceptable
-        if (!(e instanceof TypeError)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e).toBeInstanceOf(TypeError)
+        expect((e as TypeError).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -781,14 +728,10 @@ describe('Fuzz: addTranslations deep merge', () => {
         i18n.addTranslations('en', translations)
 
         // Verify translations unchanged
-        if (JSON.stringify(translations) !== JSON.stringify(translationsCopy)) {
-          throw new Error('Translations object was mutated')
-        }
+        expect(JSON.stringify(translations)).toBe(JSON.stringify(translationsCopy))
       } catch (e) {
         // Even on error, input should not be mutated
-        if (JSON.stringify(translations) !== JSON.stringify(translationsCopy)) {
-          throw new Error('Translations object was mutated even on error')
-        }
+        expect(JSON.stringify(translations)).toBe(JSON.stringify(translationsCopy))
       }
     })
   })
@@ -809,11 +752,8 @@ describe('Fuzz: addTranslations deep merge', () => {
         expect(typeof result).toBe('string')
       } catch (e) {
         // Some implementations might throw on type conflicts
-        if (!(e instanceof TypeError) && !(e instanceof Error)) {
-          throw new Error(
-            `Unexpected error: ${e instanceof Error ? e.message : String(e)}`
-          )
-        }
+        expect(e instanceof TypeError || e instanceof Error).toBe(true)
+        expect((e as Error).message.length).toBeGreaterThan(0)
       }
     })
   })
@@ -970,14 +910,9 @@ describe('Fuzz: onChange/onMissing callbacks', () => {
       })
 
       // Should not crash when callback throws
-      try {
-        i18n.setLocale('de')
-        // Locale should still be changed despite callback error
-        expect(i18n.getLocale()).toBe('de')
-      } catch (e) {
-        // Should not propagate callback errors
-        throw new Error('Callback error should not propagate')
-      }
+      i18n.setLocale('de')
+      // Locale should still be changed despite callback error
+      expect(i18n.getLocale()).toBe('de')
     })
   })
 

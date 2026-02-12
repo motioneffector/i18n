@@ -81,6 +81,7 @@ export function createI18n(options?: I18nOptions): I18n {
   let missingBehavior: MissingBehavior = 'key'
   const loadingPromises = new Map<string, Promise<void>>()
   const loadedLocales = new Set<string>()
+  let lastCallbackError: Error | null = null
 
   // Initialize translations
   if (options.translations) {
@@ -333,6 +334,7 @@ export function createI18n(options?: I18nOptions): I18n {
         try {
           cb(trimmedKey, currentLocale)
         } catch (e) {
+          lastCallbackError = e instanceof Error ? e : new Error(String(e))
           console.error('Missing callback error:', e)
         }
       })
@@ -354,6 +356,7 @@ export function createI18n(options?: I18nOptions): I18n {
         try {
           cb(trimmedKey, currentLocale)
         } catch (e) {
+          lastCallbackError = e instanceof Error ? e : new Error(String(e))
           console.error('Missing callback error:', e)
         }
       })
@@ -426,6 +429,7 @@ export function createI18n(options?: I18nOptions): I18n {
         try {
           cb(locale, prevLocale)
         } catch (e) {
+          lastCallbackError = e instanceof Error ? e : new Error(String(e))
           console.error('Change callback error:', e)
         }
       })
@@ -451,7 +455,7 @@ export function createI18n(options?: I18nOptions): I18n {
       if (locale.trim() === '') {
         throw new TypeError('locale cannot be empty')
       }
-      if (typeof trans !== 'object' || Array.isArray(trans)) {
+      if (trans === null || typeof trans !== 'object' || Array.isArray(trans)) {
         throw new TypeError('translations must be an object')
       }
 
@@ -533,7 +537,7 @@ export function createI18n(options?: I18nOptions): I18n {
         try {
           const data = await loadPath(locale)
 
-          if (typeof data !== 'object' || Array.isArray(data)) {
+          if (data === null || typeof data !== 'object' || Array.isArray(data)) {
             throw new TypeError('loadPath must return an object')
           }
 
@@ -624,6 +628,10 @@ export function createI18n(options?: I18nOptions): I18n {
 
       const formatter = new Intl.RelativeTimeFormat(currentLocale)
       return formatter.format(value, unit)
+    },
+
+    getLastCallbackError() {
+      return lastCallbackError
     },
   }
 

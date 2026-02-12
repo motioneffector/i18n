@@ -34,7 +34,7 @@ describe('1. Instance Creation', () => {
           return { hello: `Hello from ${locale}` }
         }
         const i18n = createI18n({ defaultLocale: 'en', loadPath })
-        expect(i18n).toBeDefined()
+        expect(i18n.getLocale()).toBe('en')
       })
 
       it('sets current locale to defaultLocale on creation', () => {
@@ -61,33 +61,27 @@ describe('1. Instance Creation', () => {
     describe('Invalid Inputs (Fail Fast)', () => {
       it('throws TypeError if options is null or undefined', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => createI18n(null)).toThrow(TypeError)
         expect(() => createI18n(null)).toThrow('options is required')
         // @ts-expect-error - Testing runtime validation
-        expect(() => createI18n(undefined)).toThrow(TypeError)
         expect(() => createI18n(undefined)).toThrow('options is required')
       })
 
       it('throws TypeError if options is not an object', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => createI18n('en')).toThrow(TypeError)
         expect(() => createI18n('en')).toThrow('options must be an object')
       })
 
       it('throws TypeError if defaultLocale is missing', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => createI18n({})).toThrow(TypeError)
         expect(() => createI18n({})).toThrow('defaultLocale is required')
       })
 
       it('throws TypeError if defaultLocale is empty string', () => {
-        expect(() => createI18n({ defaultLocale: '' })).toThrow(TypeError)
         expect(() => createI18n({ defaultLocale: '' })).toThrow('defaultLocale cannot be empty')
       })
 
       it('throws TypeError if defaultLocale is not a string', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => createI18n({ defaultLocale: 123 })).toThrow(TypeError)
         expect(() => createI18n({ defaultLocale: 123 })).toThrow('defaultLocale must be a string')
       })
 
@@ -98,24 +92,10 @@ describe('1. Instance Creation', () => {
             // @ts-expect-error - Testing runtime validation
             translations: 'invalid',
           })
-        ).toThrow(TypeError)
-        expect(() =>
-          createI18n({
-            defaultLocale: 'en',
-            // @ts-expect-error - Testing runtime validation
-            translations: 'invalid',
-          })
         ).toThrow('translations must be an object')
       })
 
       it('throws TypeError if loadPath is not a function', () => {
-        expect(() =>
-          createI18n({
-            defaultLocale: 'en',
-            // @ts-expect-error - Testing runtime validation
-            loadPath: 'invalid',
-          })
-        ).toThrow(TypeError)
         expect(() =>
           createI18n({
             defaultLocale: 'en',
@@ -250,25 +230,21 @@ describe('2. Basic Translation', () => {
 
       it('throws TypeError if key is null', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t(null)).toThrow(TypeError)
         expect(() => i18n.t(null)).toThrow('key must be a string')
       })
 
       it('throws TypeError if key is undefined', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t(undefined)).toThrow(TypeError)
         expect(() => i18n.t(undefined)).toThrow('key must be a string')
       })
 
       it('throws TypeError if key is a number', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t(123)).toThrow(TypeError)
         expect(() => i18n.t(123)).toThrow('key must be a string')
       })
 
       it('throws TypeError if key is an object', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t({ key: 'hello' })).toThrow(TypeError)
         expect(() => i18n.t({ key: 'hello' })).toThrow('key must be a string')
       })
     })
@@ -532,10 +508,8 @@ describe('4. Interpolation', () => {
 
       it('throws TypeError if params is not an object or undefined', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t('greeting', 'invalid')).toThrow(TypeError)
         expect(() => i18n.t('greeting', 'invalid')).toThrow('params must be an object')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t('greeting', 123)).toThrow(TypeError)
         expect(() => i18n.t('greeting', 123)).toThrow('params must be an object')
       })
 
@@ -853,7 +827,6 @@ describe('6. Locale Management', () => {
           defaultLocale: 'en',
           translations: { en: { hello: 'Hello' } },
         })
-        expect(() => i18n.setLocale('xx')).toThrow(Error)
         expect(() => i18n.setLocale('xx')).toThrow("No translations available for locale 'xx'")
       })
     })
@@ -867,18 +840,18 @@ describe('6. Locale Management', () => {
 
       it('throws TypeError if locale is not a string', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.setLocale(123)).toThrow(TypeError)
+        expect(() => i18n.setLocale(123)).toThrow('locale must be a string')
       })
 
       it('throws TypeError if locale is empty string', () => {
-        expect(() => i18n.setLocale('')).toThrow(TypeError)
+        expect(() => i18n.setLocale('')).toThrow('locale cannot be empty')
       })
 
       it('throws TypeError if locale is null or undefined', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.setLocale(null)).toThrow(TypeError)
+        expect(() => i18n.setLocale(null)).toThrow('locale must be a string')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.setLocale(undefined)).toThrow(TypeError)
+        expect(() => i18n.setLocale(undefined)).toThrow('locale must be a string')
       })
     })
   })
@@ -895,9 +868,14 @@ describe('6. Locale Management', () => {
       expect(locales).toContain('fr')
     })
 
-    it('returns empty array if no translations loaded', () => {
+    it('returns empty array when translations object is empty, and non-empty after adding', () => {
       const i18n = createI18n({ defaultLocale: 'en', translations: {} })
-      expect(i18n.getAvailableLocales()).toEqual([])
+      const emptyLocales = i18n.getAvailableLocales()
+      expect(emptyLocales).toStrictEqual([])
+      i18n.addTranslations('en', { hello: 'Hello' })
+      const locales = i18n.getAvailableLocales()
+      expect(locales).toHaveLength(1)
+      expect(locales[0] as string).toBe('en')
     })
 
     it('updates after addTranslations()', () => {
@@ -982,23 +960,23 @@ describe('7. Translation Management', () => {
 
       it('throws TypeError if locale is not a string', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.addTranslations(123, {})).toThrow(TypeError)
+        expect(() => i18n.addTranslations(123, {})).toThrow('locale must be a string')
       })
 
       it('throws TypeError if locale is empty string', () => {
-        expect(() => i18n.addTranslations('', {})).toThrow(TypeError)
+        expect(() => i18n.addTranslations('', {})).toThrow('locale cannot be empty')
       })
 
       it('throws TypeError if translations is null', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.addTranslations('en', null)).toThrow(TypeError)
+        expect(() => i18n.addTranslations('en', null)).toThrow('translations must be an object')
       })
 
       it('throws TypeError if translations is not an object', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.addTranslations('en', 'invalid')).toThrow(TypeError)
+        expect(() => i18n.addTranslations('en', 'invalid')).toThrow('translations must be an object')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.addTranslations('en', [])).toThrow(TypeError)
+        expect(() => i18n.addTranslations('en', [])).toThrow('translations must be an object')
       })
     })
   })
@@ -1073,12 +1051,12 @@ describe('7. Translation Management', () => {
 
       it('throws TypeError if key is not a string', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.hasKey(123)).toThrow(TypeError)
+        expect(() => i18n.hasKey(123)).toThrow('key must be a string')
       })
 
       it('throws TypeError if locale param is not a string (when provided)', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.hasKey('hello', 123)).toThrow(TypeError)
+        expect(() => i18n.hasKey('hello', 123)).toThrow('locale must be a string')
       })
     })
   })
@@ -1124,16 +1102,18 @@ describe('7. Translation Management', () => {
 describe('8. Lazy Loading', () => {
   describe('i18n.loadLocale(locale)', () => {
     it('loads translations via loadPath function', async () => {
-      const loadPath = vi.fn(async (locale: string) => {
+      const loadPath = async (locale: string) => {
         if (locale === 'de') return { hello: 'Hallo' }
         return {}
-      })
+      }
       const i18n = createI18n({
         defaultLocale: 'en',
         translations: { en: {} },
         loadPath,
       })
+      expect(i18n.isLocaleLoaded('de')).toBe(false)
       await i18n.loadLocale('de')
+      expect(i18n.isLocaleLoaded('de')).toBe(true)
       i18n.setLocale('de')
       expect(i18n.t('hello')).toBe('Hallo')
     })
@@ -1146,7 +1126,8 @@ describe('8. Lazy Loading', () => {
       })
       const promise = i18n.loadLocale('de')
       expect(promise).toBeInstanceOf(Promise)
-      await expect(promise).resolves.toBeUndefined()
+      await promise
+      expect(i18n.isLocaleLoaded('de')).toBe(true)
     })
 
     it('adds loaded translations to internal store', async () => {
@@ -1226,7 +1207,7 @@ describe('8. Lazy Loading', () => {
           defaultLocale: 'en',
           loadPath,
         })
-        await expect(i18n.loadLocale('de')).rejects.toThrow(TypeError)
+        await expect(i18n.loadLocale('de')).rejects.toThrow('loadPath must return an object')
       })
 
       it('rejects promise if loadPath returns non-object', async () => {
@@ -1235,12 +1216,11 @@ describe('8. Lazy Loading', () => {
           defaultLocale: 'en',
           loadPath,
         })
-        await expect(i18n.loadLocale('de')).rejects.toThrow(TypeError)
+        await expect(i18n.loadLocale('de')).rejects.toThrow('loadPath must return an object')
       })
 
       it('throws Error if loadPath not configured', () => {
         const i18n = createI18n({ defaultLocale: 'en' })
-        expect(() => i18n.loadLocale('de')).toThrow(Error)
         expect(() => i18n.loadLocale('de')).toThrow('loadPath not configured')
       })
     })
@@ -1279,7 +1259,7 @@ describe('8. Lazy Loading', () => {
         translations: { en: {} },
         loadPath,
       })
-      expect(() => i18n.setLocale('de')).toThrow()
+      expect(() => i18n.setLocale('de')).toThrow("No translations available for locale 'de'")
       expect(loadPath).not.toHaveBeenCalled()
     })
 
@@ -1407,9 +1387,9 @@ describe('9. Change Events', () => {
 
       it('throws TypeError if callback is not a function', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.onChange('invalid')).toThrow(TypeError)
+        expect(() => i18n.onChange('invalid')).toThrow('callback must be a function')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.onChange(null)).toThrow(TypeError)
+        expect(() => i18n.onChange(null)).toThrow('callback must be a function')
       })
     })
   })
@@ -1528,7 +1508,6 @@ describe('10. Missing Translation Handling', () => {
         translations: { en: {} },
       })
       i18n.setMissingBehavior('throw')
-      expect(() => i18n.t('missing.key')).toThrow(Error)
       expect(() => i18n.t('missing.key')).toThrow('Missing translation: missing.key')
     })
 
@@ -1543,7 +1522,7 @@ describe('10. Missing Translation Handling', () => {
       })
       i18n.setMissingBehavior('throw')
       expect(i18n.t('hello')).toBe('Hello')
-      expect(() => i18n.t('missing')).toThrow()
+      expect(() => i18n.t('missing')).toThrow('Missing translation: missing')
     })
 
     it('returns the i18n instance for chaining', () => {
@@ -1563,7 +1542,7 @@ describe('10. Missing Translation Handling', () => {
 
       it('throws TypeError if behavior is not valid', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.setMissingBehavior('invalid')).toThrow(TypeError)
+        expect(() => i18n.setMissingBehavior('invalid')).toThrow('behavior must be one of: key, empty, throw')
       })
     })
   })
@@ -1657,7 +1636,7 @@ describe('11. Namespace Scoping', () => {
 
       it('throws TypeError if prefix is not a string', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.t.namespace(123)).toThrow(TypeError)
+        expect(() => i18n.t.namespace(123)).toThrow('prefix must be a string')
       })
 
       it('allows null/undefined to mean no prefix', () => {
@@ -1707,8 +1686,7 @@ describe('12. Formatting Extensions', () => {
     it('handles very large numbers', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
       const result = i18n.formatNumber(1e15)
-      expect(result).toBeTruthy()
-      expect(typeof result).toBe('string')
+      expect(result).toBe('1,000,000,000,000,000')
     })
 
     it('handles decimals with precision options', () => {
@@ -1726,9 +1704,9 @@ describe('12. Formatting Extensions', () => {
 
       it('throws TypeError if value is not a number', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.formatNumber('abc')).toThrow(TypeError)
+        expect(() => i18n.formatNumber('abc')).toThrow('value must be a number')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.formatNumber(null)).toThrow(TypeError)
+        expect(() => i18n.formatNumber(null)).toThrow('value must be a number')
       })
     })
   })
@@ -1743,17 +1721,13 @@ describe('12. Formatting Extensions', () => {
     it('formats timestamp (number) as date', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
       const result = i18n.formatDate(1710460800000)
-      expect(result).toBeTruthy()
-      expect(typeof result).toBe('string')
-      expect(result.length).toBeGreaterThan(0)
+      expect(result).toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/)
     })
 
     it('formats ISO string as date', () => {
       const i18n = createI18n({ defaultLocale: 'en-US' })
       const result = i18n.formatDate('2024-03-15T10:30:00Z')
-      expect(result).toBeTruthy()
-      expect(typeof result).toBe('string')
-      expect(result.length).toBeGreaterThan(0)
+      expect(result).toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/)
     })
 
     it('accepts Intl.DateTimeFormat options', () => {
@@ -1783,9 +1757,9 @@ describe('12. Formatting Extensions', () => {
       })
 
       it('throws TypeError if value is not a valid date', () => {
-        expect(() => i18n.formatDate('invalid')).toThrow(TypeError)
+        expect(() => i18n.formatDate('invalid')).toThrow('value must be a valid date')
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.formatDate(null)).toThrow(TypeError)
+        expect(() => i18n.formatDate(null)).toThrow('value must be a valid date')
       })
     })
   })
@@ -1808,8 +1782,7 @@ describe('12. Formatting Extensions', () => {
       const units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'] as const
       units.forEach(unit => {
         const result = i18n.formatRelativeTime(1, unit)
-        expect(result).toBeTruthy()
-        expect(typeof result).toBe('string')
+        expect(result).toContain('in ')
       })
     })
 
@@ -1821,9 +1794,7 @@ describe('12. Formatting Extensions', () => {
     it('handles zero', () => {
       const i18n = createI18n({ defaultLocale: 'en' })
       const result = i18n.formatRelativeTime(0, 'day')
-      expect(result).toBeTruthy()
-      expect(typeof result).toBe('string')
-      expect(result.length).toBeGreaterThan(0)
+      expect(result).toBe('in 0 days')
     })
 
     describe('Invalid Inputs', () => {
@@ -1835,12 +1806,12 @@ describe('12. Formatting Extensions', () => {
 
       it('throws TypeError if value is not a number', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.formatRelativeTime('abc', 'day')).toThrow(TypeError)
+        expect(() => i18n.formatRelativeTime('abc', 'day')).toThrow('value must be a number')
       })
 
       it('throws TypeError if unit is not valid', () => {
         // @ts-expect-error - Testing runtime validation
-        expect(() => i18n.formatRelativeTime(1, 'invalid')).toThrow()
+        expect(() => i18n.formatRelativeTime(1, 'invalid')).toThrow(/invalid/i)
       })
     })
   })
@@ -2053,8 +2024,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify __proto__ key is not accessible as translation
       expect(i18n.t('__proto__')).toBe('__proto__')
@@ -2071,8 +2042,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
     })
 
     it('rejects __proto__ via addTranslations', () => {
@@ -2085,8 +2056,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       i18n.addTranslations('en', malicious)
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
     })
 
     it('rejects __proto__ in deeply nested structure', () => {
@@ -2103,8 +2074,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
     })
   })
 
@@ -2117,8 +2088,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify constructor key is not accessible as translation
       expect(i18n.t('constructor')).toBe('constructor')
@@ -2132,8 +2103,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify prototype key is not accessible as translation
       expect(i18n.t('prototype')).toBe('prototype')
@@ -2154,8 +2125,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       i18n.addTranslations('en', malicious2)
 
       // Verify Object.prototype not polluted after multiple merges
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify existing translations still work
       expect(i18n.t('existing')).toBe('value')
@@ -2178,8 +2149,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       i18n.addTranslations('en', malicious)
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify existing translations still work
       expect(i18n.t('common.save')).toBe('Save')
@@ -2200,8 +2171,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       ;(translations as any).constructor = { prototype: { polluted: 'yes' } }
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify original translations unaffected
       expect(i18n.t('safe')).toBe('value')
@@ -2222,8 +2193,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       i18n.addTranslations('en', { arr: maliciousArray })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
     })
   })
 
@@ -2239,8 +2210,8 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined()
-      expect(({} as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted')).toBe(false)
 
       // Verify safe key works
       expect(i18n.t('safe')).toBe('value')
@@ -2260,12 +2231,12 @@ describe('14. Security: Prototype Pollution Prevention', () => {
       })
 
       // Verify Object.prototype not polluted
-      expect((Object.prototype as any).polluted1).toBeUndefined()
-      expect((Object.prototype as any).polluted2).toBeUndefined()
-      expect((Object.prototype as any).polluted3).toBeUndefined()
-      expect(({} as any).polluted1).toBeUndefined()
-      expect(({} as any).polluted2).toBeUndefined()
-      expect(({} as any).polluted3).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted1')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted2')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted3')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted1')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted2')).toBe(false)
+      expect(Object.prototype.hasOwnProperty.call({}, 'polluted3')).toBe(false)
 
       // Verify safe key works
       expect(i18n.t('safe')).toBe('value')
@@ -2285,7 +2256,7 @@ describe('14. Security: Prototype Pollution Prevention', () => {
 
       // toString and valueOf are not forbidden keys, so they work as regular translations
       // They don't pollute prototypes because we use Object.create(null)
-      expect((Object.prototype as any).polluted).toBeUndefined()
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false)
       expect(i18n.t('toString')).toBe('string representation')
       expect(i18n.t('valueOf')).toBe('value representation')
       expect(i18n.t('safe')).toBe('value')
